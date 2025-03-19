@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # GestEPI - Gestion des Équipements de Protection Individuelle
 
 Application de gestion des EPI (Équipements de Protection Individuelle) pour les travaux en hauteur.
@@ -58,3 +59,6 @@ Application de gestion des EPI (Équipements de Protection Individuelle) pour le
 ## Licence
 
 MIT 
+=======
+# Gestion_Epi
+>>>>>>> 0f461983f46556570794aef9a949134b2c523b47
