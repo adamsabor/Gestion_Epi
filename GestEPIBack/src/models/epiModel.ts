@@ -5,7 +5,7 @@ export class EpiModel {
   // Récupérer tous les EPIs
   async findAll(): Promise<EPI[]> {
     try {
-      const [rows] = await db.query('SELECT * FROM epis');
+      const [rows] = await db.query('SELECT * FROM EPI');
       return rows as EPI[];
     } catch (error) {
       console.error('Erreur lors de la récupération des EPIs:', error);
@@ -16,7 +16,7 @@ export class EpiModel {
   // Récupérer un EPI par son ID
   async findById(id: number): Promise<EPI | null> {
     try {
-      const [rows] = await db.query('SELECT * FROM epis WHERE id = ?', [id]);
+      const [rows] = await db.query('SELECT * FROM EPI WHERE id = ?', [id]);
       const epis = rows as EPI[];
       return epis.length > 0 ? epis[0] : null;
     } catch (error) {
@@ -29,12 +29,14 @@ export class EpiModel {
   async create(epi: EPI): Promise<EPI> {
     try {
       const [result] = await db.query(
-        'INSERT INTO epis (identifiant_custom, marque, modèle, numéro_série, date_achat, date_fabrication, date_mise_en_service, périodicité_controle, epi_type_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO EPI (identifiant_custom, marque, modèle, numéro_série, taille, couleur, date_achat, date_fabrication, date_mise_en_service, périodicité_controle, epi_type_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         [
           epi.identifiant_custom,
           epi.marque,
           epi.modèle,
           epi.numéro_série,
+          epi.taille || null,
+          epi.couleur || null,
           epi.date_achat,
           epi.date_fabrication,
           epi.date_mise_en_service,
@@ -61,7 +63,7 @@ export class EpiModel {
       // Ajouter l'ID à la fin des valeurs pour la clause WHERE
       values.push(id);
       
-      await db.query(`UPDATE epis SET ${fields} WHERE id = ?`, values);
+      await db.query(`UPDATE EPI SET ${fields} WHERE id = ?`, values);
       
       // Récupérer l'EPI mis à jour
       return this.findById(id);
@@ -74,7 +76,7 @@ export class EpiModel {
   // Supprimer un EPI
   async delete(id: number): Promise<boolean> {
     try {
-      const [result] = await db.query('DELETE FROM epis WHERE id = ?', [id]);
+      const [result] = await db.query('DELETE FROM EPI WHERE id = ?', [id]);
       return (result as any).affectedRows > 0;
     } catch (error) {
       console.error(`Erreur lors de la suppression de l'EPI avec l'ID ${id}:`, error);

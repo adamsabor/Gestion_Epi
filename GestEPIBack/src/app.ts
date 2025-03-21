@@ -2,9 +2,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from 'dotenv';
-import { epiRoutes } from './routes/epiRoutes';
-import { controleRoutes } from './routes/controleRoutes';
-import { typeEpiRoutes } from './routes/typeEpiRoutes';
+import { router as apiRoutes } from './routes/index';
+import * as middlewares from './middlewares';
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -22,21 +21,22 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Routes
-app.use('/api/epis', epiRoutes);
-app.use('/api/controles', controleRoutes);
-app.use('/api/epi-types', typeEpiRoutes);
+// Routes API
+app.use('/api', apiRoutes);
 
 // Route de base pour vérifier que le serveur fonctionne
 app.get('/', (req, res) => {
   res.json({ message: 'API GestEPI fonctionnelle' });
 });
 
-// Démarrage du serveur
-const PORT = process.env.PORT || 3001;
+// Middleware de gestion des erreurs
+app.use(middlewares.notFound);
+app.use(middlewares.errorHandler);
 
-app.listen(PORT, () => {
-    console.log(`Serveur démarré sur http://localhost:${PORT} 🚀`);
-});
+// Supprimer ou commenter ces lignes si elles existent
+// const PORT = process.env.PORT || 3001;
+// app.listen(PORT, () => {
+//     console.log(`Serveur démarré sur http://localhost:${PORT} 🚀`);
+// });
 
 export default app;

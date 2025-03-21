@@ -1,28 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Button, 
-  TextField, 
-  Typography, 
-  Paper, 
-  Grid, 
-  FormControl, 
-  InputLabel, 
-  Select, 
-  MenuItem, 
-  CircularProgress, 
-  Alert,
-  SelectChangeEvent
-} from '@mui/material';
+import { Box, Button, CircularProgress, FormControl, Grid, InputLabel, MenuItem, Paper, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { fr } from 'date-fns/locale';
-import { format, parse } from 'date-fns';
+import { format, parseISO } from 'date-fns';
+import { Controle, EPI, StatutControle } from '../../types';
 import { controleService } from '../../services/controleService';
 import { epiService } from '../../services/epiService';
-import { Controle, EPI, StatutControle } from '../../types';
 
+// Props du composant
 interface ControleFormProps {
   onSuccess?: () => void;
 }
@@ -84,6 +68,14 @@ const ControleForm: React.FC<ControleFormProps> = ({ onSuccess }) => {
     setError(null);
     
     try {
+      // Vérifier que tous les champs requis sont remplis
+      if (!controle.date_controle || !controle.gestionnaire || !controle.epi_id || !controle.statut) {
+        setError('Veuillez remplir tous les champs obligatoires.');
+        setLoading(false);
+        return;
+      }
+      
+      // Créer un nouveau contrôle
       await controleService.create(controle as Controle);
       setSuccess(true);
       
@@ -109,47 +101,53 @@ const ControleForm: React.FC<ControleFormProps> = ({ onSuccess }) => {
   };
 
   return (
-    <Paper sx={{ p: 3 }}>
-      <Typography variant="h5" component="h1" gutterBottom>
+    <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+      <Typography variant="h5" component="h2" gutterBottom>
         Ajouter un nouveau contrôle
       </Typography>
       
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>Contrôle créé avec succès !</Alert>}
+      {error && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
+      )}
+      
+      {success && (
+        <Typography color="success.main" sx={{ mb: 2 }}>
+          Contrôle créé avec succès !
+        </Typography>
+      )}
       
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
-            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fr}>
-              <DatePicker
-                label="Date du contrôle"
-                value={controle.date_controle ? parse(controle.date_controle, 'yyyy-MM-dd', new Date()) : null}
-                onChange={handleDateChange}
-                slotProps={{ textField: { fullWidth: true, margin: 'normal' } }}
-              />
-            </LocalizationProvider>
+            <DatePicker
+              label="Date du contrôle"
+              value={parseISO(controle.date_controle || format(new Date(), 'yyyy-MM-dd'))}
+              onChange={handleDateChange}
+              slotProps={{ textField: { fullWidth: true, margin: 'normal' } }}
+            />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               label="Gestionnaire"
               name="gestionnaire"
-              value={controle.gestionnaire}
+              value={controle.gestionnaire || ''}
               onChange={handleTextChange}
               required
               margin="normal"
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="epi-label">EPI</InputLabel>
+            <FormControl fullWidth margin="normal" required>
+              <InputLabel id="epi-label">EPI à contrôler</InputLabel>
               <Select
                 labelId="epi-label"
                 name="epi_id"
                 value={controle.epi_id ? controle.epi_id.toString() : ''}
                 onChange={handleSelectChange}
-                label="EPI"
-                required
+                label="EPI à contrôler"
               >
                 {epis.map((epi) => (
                   <MenuItem key={epi.id} value={epi.id?.toString()}>
@@ -160,21 +158,18 @@ const ControleForm: React.FC<ControleFormProps> = ({ onSuccess }) => {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
-            <FormControl fullWidth margin="normal">
-              <InputLabel id="statut-label">Statut</InputLabel>
+            <FormControl fullWidth margin="normal" required>
+              <InputLabel id="statut-label">Statut après contrôle</InputLabel>
               <Select
                 labelId="statut-label"
                 name="statut"
                 value={controle.statut || ''}
                 onChange={handleSelectChange}
-                label="Statut"
-                required
+                label="Statut après contrôle"
               >
-                {Object.values(StatutControle).map((statut) => (
-                  <MenuItem key={statut} value={statut}>
-                    {statut}
-                  </MenuItem>
-                ))}
+                <MenuItem value={StatutControle.OPERATIONNEL}>Opérationnel</MenuItem>
+                <MenuItem value={StatutControle.A_REPARER}>À réparer</MenuItem>
+                <MenuItem value={StatutControle.MIS_AU_REBUT}>Mis au rebut</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -198,7 +193,7 @@ const ControleForm: React.FC<ControleFormProps> = ({ onSuccess }) => {
                 color="primary"
                 disabled={loading}
               >
-                {loading ? <CircularProgress size={24} /> : 'Ajouter'}
+                {loading ? <CircularProgress size={24} /> : 'Enregistrer le contrôle'}
               </Button>
             </Box>
           </Grid>

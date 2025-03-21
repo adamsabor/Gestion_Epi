@@ -8,8 +8,8 @@ export class EpiController {
     this.epiModel = new EpiModel();
   }
 
-  // Récupérer tous les EPIs
-  getAllEpis = async (req: Request, res: Response): Promise<void> => {
+  // Méthodes pour les routes
+  getAll = async (req: Request, res: Response): Promise<void> => {
     try {
       const epis = await this.epiModel.findAll();
       res.status(200).json({ message: 'EPIs récupérés avec succès', data: epis });
@@ -19,8 +19,7 @@ export class EpiController {
     }
   };
 
-  // Récupérer un EPI par son ID
-  getEpiById = async (req: Request, res: Response): Promise<void> => {
+  getById = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = parseInt(req.params.id);
       const epi = await this.epiModel.findById(id);
@@ -37,8 +36,7 @@ export class EpiController {
     }
   };
 
-  // Créer un nouvel EPI
-  createEpi = async (req: Request, res: Response): Promise<void> => {
+  create = async (req: Request, res: Response): Promise<void> => {
     try {
       const newEpi = req.body;
       const createdEpi = await this.epiModel.create(newEpi);
@@ -49,8 +47,7 @@ export class EpiController {
     }
   };
 
-  // Mettre à jour un EPI
-  updateEpi = async (req: Request, res: Response): Promise<void> => {
+  update = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = parseInt(req.params.id);
       const epiData = req.body;
@@ -68,8 +65,7 @@ export class EpiController {
     }
   };
 
-  // Supprimer un EPI
-  deleteEpi = async (req: Request, res: Response): Promise<void> => {
+  delete = async (req: Request, res: Response): Promise<void> => {
     try {
       const id = parseInt(req.params.id);
       const deleted = await this.epiModel.delete(id);

@@ -18,7 +18,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { fr } from 'date-fns/locale';
-import { format, parse } from 'date-fns';
+import { format, parse, parseISO } from 'date-fns';
 import { epiService } from '../../services/epiService';
 import { api } from '../../services/api';
 import { EPI, TypeEPI } from '../../types';
@@ -163,13 +163,22 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
   }
 
   return (
-    <Paper sx={{ p: 3 }}>
-      <Typography variant="h5" component="h1" gutterBottom>
+    <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+      <Typography variant="h5" component="h2" gutterBottom>
         {isEditing ? 'Modifier un EPI' : 'Ajouter un nouvel EPI'}
       </Typography>
       
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      {error && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
+      )}
+      
+      {success && (
+        <Typography color="success.main" sx={{ mb: 2 }}>
+          {success}
+        </Typography>
+      )}
       
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container spacing={2}>
@@ -237,35 +246,29 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
               margin="normal"
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fr}>
-              <DatePicker
-                label="Date d'achat"
-                value={parse(epi.date_achat, 'yyyy-MM-dd', new Date())}
-                onChange={(date) => handleDateChange('date_achat', date)}
-                slotProps={{ textField: { fullWidth: true, margin: 'normal' } }}
-              />
-            </LocalizationProvider>
+          <Grid item xs={12} sm={4}>
+            <DatePicker
+              label="Date d'achat"
+              value={parseISO(epi.date_achat)}
+              onChange={(date) => handleDateChange('date_achat', date)}
+              slotProps={{ textField: { fullWidth: true, margin: 'normal' } }}
+            />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fr}>
-              <DatePicker
-                label="Date de fabrication"
-                value={parse(epi.date_fabrication, 'yyyy-MM-dd', new Date())}
-                onChange={(date) => handleDateChange('date_fabrication', date)}
-                slotProps={{ textField: { fullWidth: true, margin: 'normal' } }}
-              />
-            </LocalizationProvider>
+          <Grid item xs={12} sm={4}>
+            <DatePicker
+              label="Date de fabrication"
+              value={parseISO(epi.date_fabrication)}
+              onChange={(date) => handleDateChange('date_fabrication', date)}
+              slotProps={{ textField: { fullWidth: true, margin: 'normal' } }}
+            />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fr}>
-              <DatePicker
-                label="Date de mise en service"
-                value={parse(epi.date_mise_en_service, 'yyyy-MM-dd', new Date())}
-                onChange={(date) => handleDateChange('date_mise_en_service', date)}
-                slotProps={{ textField: { fullWidth: true, margin: 'normal' } }}
-              />
-            </LocalizationProvider>
+          <Grid item xs={12} sm={4}>
+            <DatePicker
+              label="Date de mise en service"
+              value={parseISO(epi.date_mise_en_service)}
+              onChange={(date) => handleDateChange('date_mise_en_service', date)}
+              slotProps={{ textField: { fullWidth: true, margin: 'normal' } }}
+            />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField

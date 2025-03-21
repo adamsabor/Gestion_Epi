@@ -1,5 +1,5 @@
 // Définir l'URL de base de l'API
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
 // Implémentation complète de l'API
 export const api = {
@@ -24,16 +24,15 @@ export const api = {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(data)
       });
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
       }
-      const responseData = await response.json();
-      return responseData as T;
+      return await response.json() as T;
     } catch (error) {
       console.error(`Erreur lors de l'appel API POST (${endpoint}):`, error);
       throw error;
@@ -45,16 +44,15 @@ export const api = {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(data)
       });
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
       }
-      const responseData = await response.json();
-      return responseData as T;
+      return await response.json() as T;
     } catch (error) {
       console.error(`Erreur lors de l'appel API PUT (${endpoint}):`, error);
       throw error;
@@ -64,17 +62,13 @@ export const api = {
   async delete<T>(endpoint: string): Promise<T> {
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        method: 'DELETE'
       });
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
       }
-      const responseData = await response.json();
-      return responseData as T;
+      return await response.json() as T;
     } catch (error) {
       console.error(`Erreur lors de l'appel API DELETE (${endpoint}):`, error);
       throw error;
