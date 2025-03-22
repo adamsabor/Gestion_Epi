@@ -1,188 +1,237 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, CircularProgress, FormControl, Grid, InputLabel, MenuItem, Paper, Select, SelectChangeEvent, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, FormControl, Grid, InputLabel, MenuItem, Paper, TextField, Typography, Alert, SelectChangeEvent } from '@mui/material';
+import Select from '@mui/material/Select';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { format, parseISO } from 'date-fns';
-import { Controle, EPI, StatutControle } from '../../types';
+import { Controle, EPI } from '../../types';
 import { controleService } from '../../services/controleService';
 import { epiService } from '../../services/epiService';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-// Props du composant
-interface ControleFormProps {
-  onSuccess?: () => void;
-}
+const ControleForm: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const preselectedEpiId = searchParams.get('epiId');
 
-const ControleForm: React.FC<ControleFormProps> = ({ onSuccess }) => {
-  const [controle, setControle] = useState<Partial<Controle>>({
+  const [controle, setControle] = useState<Controle>({
     date_controle: format(new Date(), 'yyyy-MM-dd'),
-    gestionnaire: '',
-    epi_id: 0,
-    statut: StatutControle.OPERATIONNEL,
+    gestionnaire_id: 1, // Valeur par défaut pour le gestionnaire
+    epi_id: preselectedEpiId ? parseInt(preselectedEpiId) : 0,
+    statut_id: 1, // Opérationnel par défaut
     remarques: ''
   });
-  
+
   const [epis, setEpis] = useState<EPI[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [statuts, setStatuts] = useState<{id: number, nom: string}[]>([]);
+  const [gestionnaires, setGestionnaires] = useState<{id: number, nom: string, prénom: string}[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchEPIs = async () => {
+    const fetchData = async () => {
       try {
-        const episData = await epiService.getAll();
-        setEpis(episData);
+        setLoading(true);
+        
+        // Récupérer les EPIs
+        const epiResponse = await epiService.getAll();
+        setEpis(epiResponse);
+        
+        // Récupérer les statuts et gestionnaires depuis le backend
+        // Ces endpoints doivent être créés dans le backend
+        try {
+          const statutsResponse = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:4000'}/api/statuts`);
+          if (statutsResponse.ok) {
+            const statutsData = await statutsResponse.json();
+            setStatuts(statutsData.data || []);
+          } else {
+            // Utiliser des données statiques en cas d'erreur
+            setStatuts([
+              { id: 1, nom: 'Opérationnel' },
+              { id: 2, nom: 'À réparer' },
+              { id: 3, nom: 'Mis au rebut' }
+            ]);
+          }
+        } catch (error) {
+          console.error('Erreur lors de la récupération des statuts:', error);
+          // Utiliser des données statiques en cas d'erreur
+          setStatuts([
+            { id: 1, nom: 'Opérationnel' },
+            { id: 2, nom: 'À réparer' },
+            { id: 3, nom: 'Mis au rebut' }
+          ]);
+        }
+        
+        try {
+          const gestionnairesResponse = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:4000'}/api/gestionnaires`);
+          if (gestionnairesResponse.ok) {
+            const gestionnairesData = await gestionnairesResponse.json();
+            setGestionnaires(gestionnairesData.data || []);
+          } else {
+            // Utiliser des données statiques en cas d'erreur
+            setGestionnaires([
+              { id: 1, nom: 'Sabor', prénom: 'Adam' }
+            ]);
+          }
+        } catch (error) {
+          console.error('Erreur lors de la récupération des gestionnaires:', error);
+          // Utiliser des données statiques en cas d'erreur
+          setGestionnaires([
+            { id: 1, nom: 'Sabor', prénom: 'Adam' }
+          ]);
+        }
+        
       } catch (error) {
-        console.error('Erreur lors de la récupération des EPIs:', error);
-        setError('Impossible de charger les EPIs. Veuillez réessayer plus tard.');
+        console.error('Erreur lors de la récupération des données:', error);
+        setError('Erreur lors du chargement des données. Veuillez réessayer.');
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchEPIs();
+    fetchData();
   }, []);
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setControle({
-      ...controle,
-      [e.target.name]: e.target.value
-    });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setControle(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSelectChange = (e: SelectChangeEvent) => {
-    setControle({
-      ...controle,
-      [e.target.name]: e.target.value
-    });
+  const handleSelectChange = (e: SelectChangeEvent<number>) => {
+    const { name, value } = e.target;
+    setControle(prev => ({ ...prev, [name]: Number(value) }));
   };
 
   const handleDateChange = (date: Date | null) => {
     if (date) {
-      setControle({
-        ...controle,
-        date_controle: format(date, 'yyyy-MM-dd')
-      });
+      setControle(prev => ({ ...prev, date_controle: format(date, 'yyyy-MM-dd') }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
     
     try {
-      // Vérifier que tous les champs requis sont remplis
-      if (!controle.date_controle || !controle.gestionnaire || !controle.epi_id || !controle.statut) {
+      setSubmitting(true);
+      setError(null);
+      
+      // Validation des données
+      if (!controle.date_controle || !controle.gestionnaire_id || !controle.epi_id || !controle.statut_id) {
         setError('Veuillez remplir tous les champs obligatoires.');
-        setLoading(false);
         return;
       }
       
-      // Créer un nouveau contrôle
-      await controleService.create(controle as Controle);
-      setSuccess(true);
+      // Envoyer les données au serveur
+      const result = await controleService.create(controle);
       
-      // Réinitialiser le formulaire
-      setControle({
-        date_controle: format(new Date(), 'yyyy-MM-dd'),
-        gestionnaire: '',
-        epi_id: 0,
-        statut: StatutControle.OPERATIONNEL,
-        remarques: ''
-      });
+      setSuccess('Contrôle enregistré avec succès !');
       
-      // Appeler le callback onSuccess si fourni
-      if (onSuccess) {
-        onSuccess();
-      }
+      // Rediriger vers la page de détail de l'EPI après 2 secondes
+      setTimeout(() => {
+        navigate(`/epis/${controle.epi_id}`);
+      }, 2000);
+      
     } catch (error) {
-      console.error('Erreur lors de la création du contrôle:', error);
-      setError('Une erreur est survenue lors de la création du contrôle. Veuillez réessayer.');
+      console.error('Erreur lors de l\'enregistrement du contrôle:', error);
+      setError('Erreur lors de l\'enregistrement du contrôle. Veuillez réessayer.');
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-      <Typography variant="h5" component="h2" gutterBottom>
-        Ajouter un nouveau contrôle
+    <Paper elevation={3} sx={{ p: 3, maxWidth: 800, mx: 'auto', mt: 4 }}>
+      <Typography variant="h5" component="h1" gutterBottom>
+        Nouveau contrôle
       </Typography>
       
-      {error && (
-        <Typography color="error" sx={{ mb: 2 }}>
-          {error}
-        </Typography>
-      )}
-      
-      {success && (
-        <Typography color="success.main" sx={{ mb: 2 }}>
-          Contrôle créé avec succès !
-        </Typography>
-      )}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
       
       <Box component="form" onSubmit={handleSubmit}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6}>
-            <DatePicker
-              label="Date du contrôle"
-              value={parseISO(controle.date_controle || format(new Date(), 'yyyy-MM-dd'))}
-              onChange={handleDateChange}
-              slotProps={{ textField: { fullWidth: true, margin: 'normal' } }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Gestionnaire"
-              name="gestionnaire"
-              value={controle.gestionnaire || ''}
-              onChange={handleTextChange}
-              required
-              margin="normal"
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth margin="normal" required>
-              <InputLabel id="epi-label">EPI à contrôler</InputLabel>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <InputLabel id="epi-label">EPI</InputLabel>
               <Select
                 labelId="epi-label"
+                id="epi_id"
                 name="epi_id"
-                value={controle.epi_id ? controle.epi_id.toString() : ''}
+                value={controle.epi_id || ''}
                 onChange={handleSelectChange}
-                label="EPI à contrôler"
+                label="EPI"
+                disabled={loading || !!preselectedEpiId}
               >
-                {epis.map((epi) => (
-                  <MenuItem key={epi.id} value={epi.id?.toString()}>
+                {epis.map(epi => (
+                  <MenuItem key={epi.id} value={epi.id}>
                     {epi.identifiant_custom} - {epi.marque} {epi.modèle}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth margin="normal" required>
-              <InputLabel id="statut-label">Statut après contrôle</InputLabel>
+          
+          <Grid item xs={12} md={6}>
+            <DatePicker
+              label="Date du contrôle"
+              value={new Date(controle.date_controle)}
+              onChange={handleDateChange}
+              slotProps={{ textField: { fullWidth: true } }}
+            />
+          </Grid>
+          
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <InputLabel id="gestionnaire-label">Gestionnaire</InputLabel>
               <Select
-                labelId="statut-label"
-                name="statut"
-                value={controle.statut || ''}
+                labelId="gestionnaire-label"
+                id="gestionnaire_id"
+                name="gestionnaire_id"
+                value={controle.gestionnaire_id || ''}
                 onChange={handleSelectChange}
-                label="Statut après contrôle"
+                label="Gestionnaire"
               >
-                <MenuItem value={StatutControle.OPERATIONNEL}>Opérationnel</MenuItem>
-                <MenuItem value={StatutControle.A_REPARER}>À réparer</MenuItem>
-                <MenuItem value={StatutControle.MIS_AU_REBUT}>Mis au rebut</MenuItem>
+                {gestionnaires.map(gestionnaire => (
+                  <MenuItem key={gestionnaire.id} value={gestionnaire.id}>
+                    {gestionnaire.prénom} {gestionnaire.nom}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
+          
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <InputLabel id="statut-label">Statut</InputLabel>
+              <Select
+                labelId="statut-label"
+                id="statut_id"
+                name="statut_id"
+                value={controle.statut_id || ''}
+                onChange={handleSelectChange}
+                label="Statut"
+              >
+                {statuts.map(statut => (
+                  <MenuItem key={statut.id} value={statut.id}>
+                    {statut.nom}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+          
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Remarques"
+              id="remarques"
               name="remarques"
-              value={controle.remarques || ''}
-              onChange={handleTextChange}
+              label="Remarques"
               multiline
               rows={4}
-              margin="normal"
+              value={controle.remarques || ''}
+              onChange={handleInputChange}
             />
           </Grid>
           <Grid item xs={12}>
@@ -191,9 +240,9 @@ const ControleForm: React.FC<ControleFormProps> = ({ onSuccess }) => {
                 type="submit"
                 variant="contained"
                 color="primary"
-                disabled={loading}
+                disabled={submitting}
               >
-                {loading ? <CircularProgress size={24} /> : 'Enregistrer le contrôle'}
+                {submitting ? <CircularProgress size={24} /> : 'Enregistrer le contrôle'}
               </Button>
             </Box>
           </Grid>

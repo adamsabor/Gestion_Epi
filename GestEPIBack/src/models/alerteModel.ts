@@ -21,11 +21,24 @@ export class AlerteModel {
       
       // Calculer la date du prochain contrôle et déterminer le statut
       const alertes = (epis as any[]).map((epi: any) => {
-        const dernierControle = epi.dernier_controle 
-          ? parseISO(epi.dernier_controle) 
-          : parseISO(epi.date_mise_en_service);
+        // Vérifier si dernier_controle est null et utiliser date_mise_en_service comme fallback
+        let dernierControle;
         
-        const prochainControle = addMonths(dernierControle, epi.périodicité_controle);
+        try {
+          if (epi.dernier_controle && typeof epi.dernier_controle === 'string') {
+            dernierControle = parseISO(epi.dernier_controle);
+          } else if (epi.date_mise_en_service && typeof epi.date_mise_en_service === 'string') {
+            dernierControle = parseISO(epi.date_mise_en_service);
+          } else {
+            // Si aucune date n'est disponible ou si le format n'est pas valide, utiliser la date actuelle
+            dernierControle = new Date();
+          }
+        } catch (error) {
+          console.error('Erreur lors du parsing de la date:', error);
+          dernierControle = new Date(); // Utiliser la date actuelle en cas d'erreur
+        }
+        
+        const prochainControle = addMonths(dernierControle, epi.périodicité_controle || 12);
         const prochainControleStr = format(prochainControle, 'yyyy-MM-dd');
         
         // Déterminer le statut (à venir, en retard, etc.)

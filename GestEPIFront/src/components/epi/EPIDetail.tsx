@@ -4,7 +4,6 @@ import {
   Box, 
   Button, 
   CircularProgress, 
-  Divider, 
   Grid, 
   Paper, 
   Typography, 
@@ -20,7 +19,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import { epiService } from '../../services/epiService';
 import { controleService } from '../../services/controleService';
-import { EPI, Controle, StatutControle } from '../../types';
+import { EPI, Controle } from '../../types';
+import { format } from 'date-fns';
 
 const EPIDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,6 +29,20 @@ const EPIDetail: React.FC = () => {
   const [controles, setControles] = useState<Controle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Fonction pour déterminer la couleur du statut
+  const getStatutColor = (statut: string): 'success' | 'warning' | 'error' | 'default' => {
+    switch (statut) {
+      case 'Opérationnel':
+        return 'success';
+      case 'À réparer':
+        return 'warning';
+      case 'Mis au rebut':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,7 +61,7 @@ const EPIDetail: React.FC = () => {
         setControles(controlesData);
       } catch (error) {
         console.error('Erreur lors de la récupération des données:', error);
-        setError('Impossible de charger les données. Veuillez réessayer plus tard.');
+        setError('Erreur lors du chargement des données. Veuillez réessayer.');
       } finally {
         setLoading(false);
       }
@@ -56,22 +70,9 @@ const EPIDetail: React.FC = () => {
     fetchData();
   }, [id]);
 
-  const getStatutColor = (statut: StatutControle) => {
-    switch (statut) {
-      case StatutControle.OPERATIONNEL:
-        return 'success';
-      case StatutControle.A_REPARER:
-        return 'warning';
-      case StatutControle.MIS_AU_REBUT:
-        return 'error';
-      default:
-        return 'default';
-    }
-  };
-
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="300px">
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
         <CircularProgress />
       </Box>
     );
@@ -118,44 +119,50 @@ const EPIDetail: React.FC = () => {
         </Button>
         <Button 
           variant="contained" 
+          color="primary" 
           startIcon={<EditIcon />}
-          onClick={() => navigate(`/epis/edit/${id}`)}
+          onClick={() => navigate(`/epis/edit/${epi.id}`)}
         >
           Modifier
         </Button>
       </Box>
 
-      <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom>
-          Détails de l'EPI: {epi.identifiant_custom}
+      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h5" gutterBottom>
+          {epi.identifiant_custom} - {epi.marque} {epi.modèle}
         </Typography>
         
-        <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid container spacing={3} mt={1}>
           <Grid item xs={12} md={6}>
             <Typography variant="subtitle1" fontWeight="bold">Informations générales</Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Typography><strong>Marque:</strong> {epi.marque}</Typography>
-            <Typography><strong>Modèle:</strong> {epi.modèle}</Typography>
-            <Typography><strong>Numéro de série:</strong> {epi.numéro_série}</Typography>
-            {epi.taille && <Typography><strong>Taille:</strong> {epi.taille}</Typography>}
-            {epi.couleur && <Typography><strong>Couleur:</strong> {epi.couleur}</Typography>}
+            <Box mt={1}>
+              <Typography><strong>Numéro de série:</strong> {epi.numéro_série}</Typography>
+              {epi.taille && <Typography><strong>Taille:</strong> {epi.taille}</Typography>}
+              {epi.couleur && <Typography><strong>Couleur:</strong> {epi.couleur}</Typography>}
+            </Box>
           </Grid>
+          
           <Grid item xs={12} md={6}>
             <Typography variant="subtitle1" fontWeight="bold">Dates importantes</Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Typography><strong>Date d'achat:</strong> {new Date(epi.date_achat).toLocaleDateString()}</Typography>
-            <Typography><strong>Date de fabrication:</strong> {new Date(epi.date_fabrication).toLocaleDateString()}</Typography>
-            <Typography><strong>Date de mise en service:</strong> {new Date(epi.date_mise_en_service).toLocaleDateString()}</Typography>
-            <Typography><strong>Périodicité de contrôle:</strong> {epi.périodicité_controle} mois</Typography>
+            <Box mt={1}>
+              <Typography><strong>Date d'achat:</strong> {format(new Date(epi.date_achat), 'dd/MM/yyyy')}</Typography>
+              <Typography><strong>Date de fabrication:</strong> {format(new Date(epi.date_fabrication), 'dd/MM/yyyy')}</Typography>
+              <Typography><strong>Date de mise en service:</strong> {format(new Date(epi.date_mise_en_service), 'dd/MM/yyyy')}</Typography>
+              <Typography><strong>Périodicité de contrôle:</strong> {epi.périodicité_controle} mois</Typography>
+            </Box>
           </Grid>
         </Grid>
+      </Paper>
 
-        <Typography variant="h6" component="h3" gutterBottom sx={{ mt: 4 }}>
+      <Paper elevation={3} sx={{ p: 3 }}>
+        <Typography variant="h6" gutterBottom>
           Historique des contrôles
         </Typography>
         
         {controles.length === 0 ? (
-          <Typography>Aucun contrôle enregistré pour cet EPI.</Typography>
+          <Typography color="textSecondary" sx={{ py: 2 }}>
+            Aucun contrôle enregistré pour cet EPI.
+          </Typography>
         ) : (
           <TableContainer>
             <Table>
@@ -170,12 +177,12 @@ const EPIDetail: React.FC = () => {
               <TableBody>
                 {controles.map((controle) => (
                   <TableRow key={controle.id}>
-                    <TableCell>{new Date(controle.date_controle).toLocaleDateString()}</TableCell>
-                    <TableCell>{controle.gestionnaire}</TableCell>
+                    <TableCell>{format(new Date(controle.date_controle), 'dd/MM/yyyy')}</TableCell>
+                    <TableCell>{controle.gestionnaire_nom}</TableCell>
                     <TableCell>
                       <Chip 
-                        label={controle.statut} 
-                        color={getStatutColor(controle.statut) as any}
+                        label={controle.statut_nom || ''} 
+                        color={getStatutColor(controle.statut_nom || '')}
                         size="small"
                       />
                     </TableCell>

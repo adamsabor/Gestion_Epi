@@ -13,9 +13,15 @@ import {
   TableContainer, 
   TableHead, 
   TableRow,
-  Chip
+  Chip,
+  Button
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { alerteService } from '../../services/alerteService';
+import WarningIcon from '@mui/icons-material/Warning';
+import ErrorIcon from '@mui/icons-material/Error';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { format } from 'date-fns';
 
 // Interface pour les alertes
 interface Alerte {
@@ -30,123 +36,206 @@ interface Alerte {
 }
 
 const AlertesList: React.FC = () => {
+  const navigate = useNavigate();
   const [alertes, setAlertes] = useState<Alerte[]>([]);
+  const [filteredAlertes, setFilteredAlertes] = useState<Alerte[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tabValue, setTabValue] = useState(0);
+  const [stats, setStats] = useState({
+    total: 0,
+    enRetard: 0,
+    aVenir: 0
+  });
 
   useEffect(() => {
-    fetchAlertes();
-  }, [tabValue]);
-
-  const fetchAlertes = async () => {
-    setLoading(true);
-    try {
-      let data: Alerte[];
-      
-      switch (tabValue) {
-        case 0: // Toutes les alertes
-          data = await alerteService.getAll();
-          break;
-        case 1: // À venir
-          data = await alerteService.getByStatut('À venir');
-          break;
-        case 2: // En retard
-          data = await alerteService.getByStatut('En retard');
-          break;
-        default:
-          data = await alerteService.getAll();
+    const fetchAlertes = async () => {
+      try {
+        setLoading(true);
+        const data = await alerteService.getAll();
+        setAlertes(data);
+        
+        // Calculer les statistiques
+        const enRetard = data.filter(a => a.statut === 'En retard').length;
+        const aVenir = data.filter(a => a.statut === 'À venir').length;
+        
+        setStats({
+          total: data.length,
+          enRetard,
+          aVenir
+        });
+        
+        // Filtrer selon l'onglet actif
+        filterAlertesByTab(tabValue, data);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des alertes:', error);
+        setError('Erreur lors du chargement des alertes. Veuillez réessayer.');
+      } finally {
+        setLoading(false);
       }
-      
-      setAlertes(data);
-    } catch (error) {
-      console.error('Erreur lors de la récupération des alertes:', error);
-      setError('Impossible de charger les alertes. Veuillez réessayer plus tard.');
-    } finally {
-      setLoading(false);
+    };
+
+    fetchAlertes();
+  }, []);
+
+  const filterAlertesByTab = (tabIndex: number, data: Alerte[] = alertes) => {
+    switch (tabIndex) {
+      case 0: // Toutes
+        setFilteredAlertes(data);
+        break;
+      case 1: // En retard
+        setFilteredAlertes(data.filter(a => a.statut === 'En retard'));
+        break;
+      case 2: // À venir
+        setFilteredAlertes(data.filter(a => a.statut === 'À venir'));
+        break;
+      case 3: // À jour
+        setFilteredAlertes(data.filter(a => a.statut === 'À jour'));
+        break;
+      default:
+        setFilteredAlertes(data);
     }
   };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+    filterAlertesByTab(newValue);
   };
 
-  const getUrgenceColor = (urgence: string) => {
-    switch (urgence) {
-      case 'normale':
-        return 'success';
-      case 'moyenne':
-        return 'warning';
-      case 'haute':
-        return 'error';
-      default:
-        return 'default';
+  const handleViewEPI = (id?: number) => {
+    if (id) {
+      navigate(`/epis/${id}`);
+    }
+  };
+
+  const handleAddControle = (id?: number) => {
+    if (id) {
+      navigate(`/controles/new?epiId=${id}`);
     }
   };
 
   return (
-    <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-      <Typography variant="h5" component="h2" gutterBottom>
+    <Box>
+      <Typography variant="h5" gutterBottom>
         Alertes de contrôle
       </Typography>
       
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-        <Tabs value={tabValue} onChange={handleTabChange} aria-label="alertes tabs">
-          <Tab label="Toutes les alertes" />
-          <Tab label="À venir" />
-          <Tab label="En retard" />
+      <Paper elevation={3} sx={{ mb: 3 }}>
+        <Tabs 
+          value={tabValue} 
+          onChange={handleTabChange}
+          variant="fullWidth"
+          sx={{ borderBottom: 1, borderColor: 'divider' }}
+        >
+          <Tab 
+            label={
+              <Box display="flex" alignItems="center">
+                <span>Toutes ({stats.total})</span>
+              </Box>
+            } 
+          />
+          <Tab 
+            label={
+              <Box display="flex" alignItems="center">
+                <ErrorIcon fontSize="small" sx={{ mr: 1, color: 'error.main' }} />
+                En retard ({stats.enRetard})
+              </Box>
+            } 
+          />
+          <Tab 
+            label={
+              <Box display="flex" alignItems="center">
+                <WarningIcon fontSize="small" sx={{ mr: 1, color: 'warning.main' }} />
+                À venir ({stats.aVenir})
+              </Box>
+            } 
+          />
+          <Tab 
+            label={
+              <Box display="flex" alignItems="center">
+                <CheckCircleIcon fontSize="small" sx={{ mr: 1, color: 'success.main' }} />
+                À jour ({stats.total - stats.enRetard - stats.aVenir})
+              </Box>
+            } 
+          />
         </Tabs>
-      </Box>
+      </Paper>
       
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-      
-      {loading ? (
-        <Box display="flex" justifyContent="center" p={3}>
-          <CircularProgress />
-        </Box>
-      ) : alertes.length === 0 ? (
-        <Alert severity="info">
-          Aucune alerte à afficher dans cette catégorie.
-        </Alert>
-      ) : (
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Identifiant</TableCell>
-                <TableCell>Marque / Modèle</TableCell>
-                <TableCell>Dernier contrôle</TableCell>
-                <TableCell>Prochain contrôle</TableCell>
-                <TableCell>Statut</TableCell>
-                <TableCell>Urgence</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {alertes.map((alerte) => (
-                <TableRow key={alerte.id}>
-                  <TableCell>{alerte.identifiant_custom}</TableCell>
-                  <TableCell>{alerte.marque} {alerte.modèle}</TableCell>
-                  <TableCell>{new Date(alerte.dernier_controle).toLocaleDateString()}</TableCell>
-                  <TableCell>{new Date(alerte.prochain_controle).toLocaleDateString()}</TableCell>
-                  <TableCell>{alerte.statut}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={alerte.urgence} 
-                      color={getUrgenceColor(alerte.urgence) as any}
-                      size="small"
-                    />
-                  </TableCell>
+      <Paper elevation={3} sx={{ p: 3 }}>
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
+        
+        {loading ? (
+          <Box display="flex" justifyContent="center" p={3}>
+            <CircularProgress />
+          </Box>
+        ) : filteredAlertes.length === 0 ? (
+          <Typography color="textSecondary" sx={{ p: 2 }}>
+            Aucune alerte à afficher dans cette catégorie.
+          </Typography>
+        ) : (
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Identifiant</TableCell>
+                  <TableCell>EPI</TableCell>
+                  <TableCell>Dernier contrôle</TableCell>
+                  <TableCell>Prochain contrôle</TableCell>
+                  <TableCell>Statut</TableCell>
+                  <TableCell>Actions</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-    </Paper>
+              </TableHead>
+              <TableBody>
+                {filteredAlertes.map((alerte) => (
+                  <TableRow key={alerte.id}>
+                    <TableCell>{alerte.identifiant_custom}</TableCell>
+                    <TableCell>{alerte.marque} {alerte.modèle}</TableCell>
+                    <TableCell>{format(new Date(alerte.dernier_controle), 'dd/MM/yyyy')}</TableCell>
+                    <TableCell>{format(new Date(alerte.prochain_controle), 'dd/MM/yyyy')}</TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={alerte.statut} 
+                        color={
+                          alerte.statut === 'En retard' 
+                            ? 'error' 
+                            : alerte.statut === 'À venir' 
+                              ? 'warning' 
+                              : 'success'
+                        }
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Box>
+                        <Button 
+                          size="small" 
+                          onClick={() => handleViewEPI(alerte.id)}
+                          sx={{ mr: 1 }}
+                        >
+                          Voir
+                        </Button>
+                        <Button 
+                          size="small" 
+                          variant="contained" 
+                          color="primary"
+                          onClick={() => handleAddControle(alerte.id)}
+                        >
+                          Contrôler
+                        </Button>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Paper>
+    </Box>
   );
 };
 

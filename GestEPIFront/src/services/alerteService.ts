@@ -1,15 +1,18 @@
 import { api } from './api';
-import { EPI } from '../types';
 
 // Interface pour les alertes
-interface Alerte extends EPI {
+interface Alerte {
+  id?: number;
+  identifiant_custom: string;
+  marque: string;
+  modèle: string;
   dernier_controle: string;
   prochain_controle: string;
   statut: 'À jour' | 'À venir' | 'En retard';
   urgence: 'normale' | 'moyenne' | 'haute';
 }
 
-// Définir un type pour la réponse de l'API
+// Type pour la réponse de l'API
 interface ApiResponse<T> {
   message: string;
   data: T;
@@ -23,18 +26,18 @@ export const alerteService = {
       return response.data || [];
     } catch (error) {
       console.error('Erreur lors de la récupération des alertes:', error);
-      return [];
+      throw error;
     }
   },
 
-  // Récupérer les alertes filtrées par statut
+  // Récupérer les alertes par statut
   getByStatut: async (statut: string): Promise<Alerte[]> => {
     try {
-      const response = await api.get<ApiResponse<Alerte[]>>(`/api/alertes?statut=${statut}`);
+      const response = await api.get<ApiResponse<Alerte[]>>(`/api/alertes/statut/${statut}`);
       return response.data || [];
     } catch (error) {
       console.error(`Erreur lors de la récupération des alertes avec le statut ${statut}:`, error);
-      return [];
+      throw error;
     }
   }
 }; 

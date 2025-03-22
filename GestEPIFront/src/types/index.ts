@@ -7,9 +7,9 @@ export enum EpiTypeEnum {
 }
 
 export enum StatutControle {
-  OPERATIONNEL = "Opérationnel",
-  A_REPARER = "À réparer",
-  MIS_AU_REBUT = "Mis au rebut"
+  Operationnel = 'Opérationnel',
+  AReparer = 'À réparer',
+  MisAuRebut = 'Mis au rebut'
 }
 
 export interface EPI {
@@ -23,23 +23,25 @@ export interface EPI {
   date_achat: string;
   date_fabrication: string;
   date_mise_en_service: string;
-  périodicité_controle: number; // en mois
+  périodicité_controle: number;
   epi_type_id: number;
 }
 
 export interface TypeEPI {
   id: number;
   nom: string;
-  description?: string;
 }
 
 export interface Controle {
   id?: number;
   date_controle: string;
-  gestionnaire: string;
   epi_id: number;
-  statut: StatutControle;
+  gestionnaire_id: number;
+  statut_id: number;
   remarques?: string;
+  
+  gestionnaire_nom?: string;
+  statut_nom?: string;
 }
 
 export interface StatutEPI {
