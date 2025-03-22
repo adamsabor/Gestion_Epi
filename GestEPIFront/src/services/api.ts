@@ -1,76 +1,78 @@
-// Définir l'URL de base de l'API
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+import axios, { AxiosResponse } from 'axios';
 
-// Implémentation complète de l'API
+// Créer une instance axios avec la configuration de base
+const instance = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:4000',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// Intercepteur pour les requêtes
+instance.interceptors.request.use(
+  (config) => {
+    console.log(`Tentative de connexion à ${config.baseURL}${config.url}`);
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Intercepteur pour les réponses
+instance.interceptors.response.use(
+  (response) => {
+    return response.data;
+  },
+  (error) => {
+    if (error.response) {
+      console.error(`Erreur lors de l'appel API (${error.config.url}): ${error.response.status} - ${error.response.data.message || error.message}`);
+    } else if (error.request) {
+      console.error(`Erreur lors de l'appel API (${error.config?.url}): Pas de réponse du serveur`);
+    } else {
+      console.error(`Erreur lors de l'appel API: ${error.message}`);
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const api = {
-  async get<T>(endpoint: string): Promise<T> {
+  get: async <T>(url: string): Promise<T> => {
     try {
-      console.log(`Tentative de connexion à ${API_BASE_URL}${endpoint}`);
-      const response = await fetch(`${API_BASE_URL}${endpoint}`);
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
-      }
-      const data = await response.json();
-      return data as T;
+      const response = await instance.get<any, T>(url);
+      return response;
     } catch (error) {
-      console.error(`Erreur lors de l'appel API (${endpoint}):`, error);
+      console.error(`Erreur lors de l'appel API (${url}):`, error);
       throw error;
     }
   },
-
-  async post<T>(endpoint: string, data: any): Promise<T> {
+  
+  post: async <T>(url: string, data: any): Promise<T> => {
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
-      }
-      return await response.json() as T;
+      const response = await instance.post<any, T>(url, data);
+      return response;
     } catch (error) {
-      console.error(`Erreur lors de l'appel API POST (${endpoint}):`, error);
+      console.error(`Erreur lors de l'appel API (${url}):`, error);
       throw error;
     }
   },
-
-  async put<T>(endpoint: string, data: any): Promise<T> {
+  
+  put: async <T>(url: string, data: any): Promise<T> => {
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
-      }
-      return await response.json() as T;
+      const response = await instance.put<any, T>(url, data);
+      return response;
     } catch (error) {
-      console.error(`Erreur lors de l'appel API PUT (${endpoint}):`, error);
+      console.error(`Erreur lors de l'appel API (${url}):`, error);
       throw error;
     }
   },
-
-  async delete<T>(endpoint: string): Promise<T> {
+  
+  delete: async <T>(url: string): Promise<T> => {
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        method: 'DELETE'
-      });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Erreur HTTP: ${response.status}`);
-      }
-      return await response.json() as T;
+      const response = await instance.delete<any, T>(url);
+      return response;
     } catch (error) {
-      console.error(`Erreur lors de l'appel API DELETE (${endpoint}):`, error);
+      console.error(`Erreur lors de l'appel API (${url}):`, error);
       throw error;
     }
   }

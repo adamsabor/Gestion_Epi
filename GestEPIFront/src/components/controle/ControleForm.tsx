@@ -39,8 +39,7 @@ const ControleForm: React.FC = () => {
         const epiResponse = await epiService.getAll();
         setEpis(epiResponse);
         
-        // Récupérer les statuts et gestionnaires depuis le backend
-        // Ces endpoints doivent être créés dans le backend
+        // Récupérer les statuts
         try {
           const statutsResponse = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:4000'}/api/statuts`);
           if (statutsResponse.ok) {
@@ -64,6 +63,7 @@ const ControleForm: React.FC = () => {
           ]);
         }
         
+        // Récupérer les gestionnaires
         try {
           const gestionnairesResponse = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:4000'}/api/gestionnaires`);
           if (gestionnairesResponse.ok) {
@@ -82,9 +82,8 @@ const ControleForm: React.FC = () => {
             { id: 1, nom: 'Sabor', prénom: 'Adam' }
           ]);
         }
-        
       } catch (error) {
-        console.error('Erreur lors de la récupération des données:', error);
+        console.error('Erreur lors du chargement des données:', error);
         setError('Erreur lors du chargement des données. Veuillez réessayer.');
       } finally {
         setLoading(false);

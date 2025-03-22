@@ -81,4 +81,6 @@ export class EpiController {
       res.status(500).json({ message: 'Erreur serveur lors de la suppression de l\'EPI' });
     }
   };
-} 
+}
+
+export const epiController = new EpiController(); 

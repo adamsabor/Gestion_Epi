@@ -1,19 +1,34 @@
 import express from 'express';
-import { epiRoutes } from './epiRoutes';
-import { controleRoutes } from './controleRoutes';
-import { alerteRoutes } from './alerteRoutes';
-import { typeEpiRoutes } from './typeEpiRoutes';
-import { statutRoutes } from './statutRoutes';
-import { gestionnaireRoutes } from './gestionnaireRoutes';
+import { epiController } from '../controllers/epiController';
+import { epiTypeController } from '../controllers/epiTypeController';
+import { controleController } from '../controllers/controleController';
+import { statutController } from '../controllers/statutController';
+import { gestionnaireController } from '../controllers/gestionnaireController';
+import { alerteController } from '../controllers/alerteController';
 
-const router = express.Router();
+export const router = express.Router();
 
-// Montage des routes
-router.use('/epis', epiRoutes);
-router.use('/controles', controleRoutes);
-router.use('/alertes', alerteRoutes);
-router.use('/types', typeEpiRoutes);
-router.use('/statuts', statutRoutes);
-router.use('/gestionnaires', gestionnaireRoutes);
+// Routes pour les EPIs
+router.get('/epis', epiController.getAll);
+router.get('/epis/:id', epiController.getById);
+router.post('/epis', epiController.create);
+router.put('/epis/:id', epiController.update);
+router.delete('/epis/:id', epiController.delete);
 
-export { router };
+// Routes pour les types d'EPI
+router.get('/epi-types', epiTypeController.getAll);
+
+// Routes pour les contrôles
+router.get('/controles', controleController.getAll);
+router.get('/controles/:id', controleController.getById);
+router.get('/controles/epi/:epiId', controleController.getByEpiId);
+router.post('/controles', controleController.create);
+
+// Routes pour les statuts
+router.get('/statuts', statutController.getAll);
+
+// Routes pour les gestionnaires
+router.get('/gestionnaires', gestionnaireController.getAll);
+
+// Routes pour les alertes
+router.get('/alertes', alerteController.getAlertes);

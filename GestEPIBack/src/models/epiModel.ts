@@ -76,6 +76,15 @@ export class EpiModel {
   // Supprimer un EPI
   async delete(id: number): Promise<boolean> {
     try {
+      // Vérifier s'il existe des contrôles liés à cet EPI
+      const [controles] = await db.query('SELECT id FROM Controle_EPI WHERE epi_id = ?', [id]);
+      
+      // Si des contrôles existent, les supprimer d'abord
+      if ((controles as any[]).length > 0) {
+        await db.query('DELETE FROM Controle_EPI WHERE epi_id = ?', [id]);
+      }
+      
+      // Ensuite supprimer l'EPI
       const [result] = await db.query('DELETE FROM EPI WHERE id = ?', [id]);
       return (result as any).affectedRows > 0;
     } catch (error) {
