@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 // Charger les variables d'environnement
 dotenv.config();
 
-// Après dotenv.config()
+// Journalisation de la configuration (sans exposer le mot de passe)
 console.log('Configuration de la base de données:', {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
@@ -19,7 +19,7 @@ export const db = mysql.createPool({
   port: parseInt(process.env.DB_PORT || '8889'),
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'GESTEPI',
+  database: process.env.DB_NAME || 'gestepi',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0

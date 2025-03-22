@@ -6,4 +6,4 @@ const router = express.Router();
 // Routes pour les types d'EPI
 router.get('/', epiTypeController.getAll);
 
-export { router as typeEpiRoutes }; 
+export { router as typeEpiRoutes };
