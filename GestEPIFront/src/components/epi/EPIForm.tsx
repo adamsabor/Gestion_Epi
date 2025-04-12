@@ -1,41 +1,59 @@
+// ********** IMPORTS **********
+// Import des fonctionnalités de base de React : useState pour gérer l'état, useEffect pour les effets
 import React, { useState, useEffect } from 'react';
+
+// Import des composants Material-UI pour créer l'interface graphique
+// Ces composants permettent d'avoir une interface moderne et responsive
 import { 
-  Box, 
-  Button, 
-  TextField, 
-  Typography, 
-  Paper, 
-  Grid, 
-  FormControl, 
-  InputLabel, 
-  Select, 
-  MenuItem, 
-  CircularProgress, 
-  Alert,
-  SelectChangeEvent
+  Box,               // Conteneur flexible
+  Button,            // Boutons
+  TextField,         // Champs de texte
+  Typography,        // Textes et titres
+  Paper,            // Surface surélevée (comme une carte)
+  Grid,             // Grille pour la mise en page responsive
+  FormControl,      // Conteneur de formulaire
+  InputLabel,       // Label pour les champs
+  Select,           // Menu déroulant
+  MenuItem,         // Option dans un menu déroulant
+  CircularProgress, // Indicateur de chargement circulaire
+  Alert,            // Messages d'alerte
+  SelectChangeEvent // Type pour les événements de sélection
 } from '@mui/material';
+
+// Import des composants pour gérer les dates
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { fr } from 'date-fns/locale';
+import { fr } from 'date-fns/locale'; // Pour avoir les dates en français
+
+// Import des fonctions de manipulation de dates
 import { format, parse, parseISO } from 'date-fns';
-import { epiService } from '../../services/epiService';
-import { api } from '../../services/api';
+
+// Import des services qui gèrent les appels à l'API
+import { epiService } from '../../services/epiService';         // Service pour les EPIs
+import { api } from '../../services/api';                       // Configuration de base de l'API
+import { typeEpiService } from '../../services/typeEpiService'; // Service pour les types d'EPI
+
+// Import des types TypeScript pour le typage des données
 import { EPI, TypeEPI } from '../../types';
-import { typeEpiService } from '../../services/typeEpiService';
 
-// Définir un type pour la réponse de l'API
+// Interface qui définit la structure de la réponse de l'API
 interface ApiResponse<T> {
-  message: string;
-  data: T;
+  message: string; // Message de retour (succès/erreur)
+  data: T;        // Données retournées, de type générique T
 }
 
+// Interface qui définit les props (propriétés) du composant EPIForm
 interface EPIFormProps {
-  epiId?: number;
-  onSuccess?: () => void;
+  epiId?: number;     // ID de l'EPI (optionnel, pour l'édition)
+  onSuccess?: () => void; // Fonction appelée en cas de succès
 }
 
+// Composant principal EPIForm : Formulaire de création/modification d'un EPI
+// Ce composant est utilisé à la fois pour créer un nouvel EPI et pour modifier un EPI existant
 const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
+  // État pour stocker les données du formulaire
+  // Les valeurs par défaut sont définies ici
   const [epi, setEpi] = useState<EPI>({
     identifiant_custom: '',
     marque: '',
@@ -48,21 +66,24 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
     epi_type_id: 1
   });
   
-  const [typesEPI, setTypesEPI] = useState<TypeEPI[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  // États pour gérer l'interface utilisateur
+  const [typesEPI, setTypesEPI] = useState<TypeEPI[]>([]); // Liste des types d'EPI
+  const [loading, setLoading] = useState<boolean>(false);   // Indicateur de chargement
+  const [error, setError] = useState<string | null>(null);  // Message d'erreur
+  const [success, setSuccess] = useState<string | null>(null); // Message de succès
+  const [isEditing, setIsEditing] = useState<boolean>(false); // Mode édition ou création
 
+  // useEffect : Se déclenche au chargement du composant
+  // Charge les types d'EPI et les données de l'EPI si on est en mode édition
   useEffect(() => {
-    // Charger les types d'EPI
+    // Fonction qui charge la liste des types d'EPI depuis l'API
     const fetchTypesEPI = async () => {
       try {
         const response = await typeEpiService.getAll();
         if (response && response.length > 0) {
           setTypesEPI(response);
         } else {
-          // Utiliser des données statiques en cas d'erreur
+          // Si pas de données, utilise une liste statique par défaut
           setTypesEPI([
             { id: 1, nom: 'Casque de protection' },
             { id: 2, nom: 'Baudrier' },
@@ -73,7 +94,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
       } catch (error) {
         console.error('Erreur lors de la récupération des types d\'EPI:', error);
         setError('Impossible de charger les types d\'EPI. Utilisation de données statiques.');
-        // Utiliser des données statiques en cas d'erreur
+        // En cas d'erreur, utilise la même liste statique
         setTypesEPI([
           { id: 1, nom: 'Casque de protection' },
           { id: 2, nom: 'Baudrier' },
@@ -83,9 +104,11 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
       }
     };
 
+    // Appelle la fonction pour charger les types d'EPI
     fetchTypesEPI();
 
-    // Si un ID d'EPI est fourni, charger les données de l'EPI
+    // Si un ID est fourni, on est en mode édition
+    // Dans ce cas, charge les données de l'EPI existant
     if (epiId) {
       setIsEditing(true);
       const fetchEPI = async () => {
@@ -103,8 +126,9 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
 
       fetchEPI();
     }
-  }, [epiId]);
+  }, [epiId]); // Se déclenche quand epiId change
 
+  // Fonction qui gère les changements dans les champs texte
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEpi({
       ...epi,
@@ -112,6 +136,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
     });
   };
 
+  // Fonction qui gère les changements dans les menus déroulants
   const handleSelectChange = (e: SelectChangeEvent) => {
     setEpi({
       ...epi,
@@ -119,6 +144,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
     });
   };
 
+  // Fonction qui gère les changements de date
   const handleDateChange = (name: string, date: Date | null) => {
     if (date) {
       setEpi({
@@ -128,23 +154,24 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
     }
   };
 
+  // Fonction appelée lors de la soumission du formulaire
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Empêche le rechargement de la page
     setLoading(true);
     setError(null);
     setSuccess(null);
 
     try {
       if (isEditing && epiId) {
-        // Mettre à jour un EPI existant
+        // Mode édition : met à jour l'EPI existant
         await epiService.update(epiId, epi);
         setSuccess('EPI mis à jour avec succès !');
       } else {
-        // Créer un nouvel EPI
+        // Mode création : crée un nouvel EPI
         await epiService.create(epi);
         setSuccess('EPI créé avec succès !');
         
-        // Réinitialiser le formulaire après la création
+        // Réinitialise le formulaire après création
         setEpi({
           identifiant_custom: '',
           marque: '',
@@ -158,7 +185,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
         });
       }
 
-      // Appeler le callback onSuccess si fourni
+      // Si une fonction onSuccess a été fournie, l'appelle
       if (onSuccess) {
         onSuccess();
       }
@@ -170,6 +197,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
     }
   };
 
+  // Affiche un indicateur de chargement pendant l'édition
   if (loading && isEditing) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
@@ -178,26 +206,32 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
     );
   }
 
+  // Rendu du formulaire
   return (
     <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+      {/* Titre du formulaire qui change selon le mode (création/édition) */}
       <Typography variant="h5" component="h2" gutterBottom>
         {isEditing ? 'Modifier un EPI' : 'Ajouter un nouvel EPI'}
       </Typography>
       
+      {/* Affichage des messages d'erreur */}
       {error && (
         <Typography color="error" sx={{ mb: 2 }}>
           {error}
         </Typography>
       )}
       
+      {/* Affichage des messages de succès */}
       {success && (
         <Typography color="success.main" sx={{ mb: 2 }}>
           {success}
         </Typography>
       )}
       
+      {/* Formulaire principal */}
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container spacing={2}>
+          {/* Champs pour l'identifiant personnalisé */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -209,6 +243,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
               margin="normal"
             />
           </Grid>
+          {/* Champ pour la marque */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -220,6 +255,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
               margin="normal"
             />
           </Grid>
+          {/* Champ pour le modèle */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -231,6 +267,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
               margin="normal"
             />
           </Grid>
+          {/* Champ pour le numéro de série */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -242,6 +279,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
               margin="normal"
             />
           </Grid>
+          {/* Champ pour la taille (optionnel) */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -252,6 +290,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
               margin="normal"
             />
           </Grid>
+          {/* Champ pour la couleur (optionnel) */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -262,6 +301,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
               margin="normal"
             />
           </Grid>
+          {/* Sélecteurs de date */}
           <Grid item xs={12} sm={4}>
             <DatePicker
               label="Date d'achat"
@@ -286,6 +326,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
               slotProps={{ textField: { fullWidth: true, margin: 'normal' } }}
             />
           </Grid>
+          {/* Champ pour la périodicité de contrôle */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -299,6 +340,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
               InputProps={{ inputProps: { min: 1 } }}
             />
           </Grid>
+          {/* Menu déroulant pour le type d'EPI */}
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth margin="normal">
               <InputLabel id="epi-type-label">Type d'EPI</InputLabel>
@@ -318,6 +360,7 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
               </Select>
             </FormControl>
           </Grid>
+          {/* Bouton de soumission */}
           <Grid item xs={12}>
             <Box display="flex" justifyContent="flex-end" mt={2}>
               <Button
@@ -336,4 +379,4 @@ const EPIForm: React.FC<EPIFormProps> = ({ epiId, onSuccess }) => {
   );
 };
 
-export default EPIForm; 
+export default EPIForm;

@@ -1,13 +1,73 @@
+/* ********** STYLES GLOBAUX DE L'APPLICATION ********** */
+/* Ce fichier contient les styles de base qui s'appliquent à toute l'application */
+/* C'est comme les "règles de base" pour l'apparence de notre site */
+
+/* Styles pour le corps de la page (body) */
 body {
+  /* Supprime les marges par défaut du navigateur */
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  
+  /* Définit la police de caractères par défaut */
+  /* Liste des polices dans l'ordre de préférence */
+  font-family: 
+    -apple-system,      /* Pour les appareils Apple */
+    BlinkMacSystemFont, /* Pour Chrome sur Mac */
+    'Segoe UI',         /* Pour Windows */
+    'Roboto',           /* Police par défaut de Material UI */
+    'Oxygen',
+    'Ubuntu',
+    'Cantarell',
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;         /* Police générique de secours */
+  
+  /* Améliore le rendu des polices sur les écrans */
+  -webkit-font-smoothing: antialiased;  /* Pour Chrome/Safari */
+  -moz-osx-font-smoothing: grayscale;   /* Pour Firefox */
 }
 
+/* Styles pour les blocs de code */
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  /* Police monospace pour le code, plus lisible */
+  font-family: 
+    source-code-pro,    /* Police spéciale pour le code */
+    Menlo,             /* Pour Mac */
+    Monaco,            /* Pour Mac */
+    Consolas,          /* Pour Windows */
+    'Courier New',     /* Police monospace classique */
+    monospace;         /* Police générique de secours */
 }
+
+/*
+RÉSUMÉ DU FICHIER index.css :
+Ce fichier est le "FONDATION" des styles de notre application. 
+C'est comme les règles de base pour l'apparence de notre site !
+
+1. RÔLE PRINCIPAL :
+   - Définit les styles de base pour tout le site
+   - Configure l'apparence par défaut du texte
+   - Assure une cohérence visuelle de base
+
+2. ÉLÉMENTS CLÉS :
+   - Styles du body :
+     * Suppression des marges par défaut
+     * Configuration des polices
+     * Optimisation du rendu des textes
+   - Styles du code :
+     * Police spéciale pour les blocs de code
+     * Meilleure lisibilité du code
+
+3. IMPORTANCE :
+   - Ces styles s'appliquent à TOUTE l'application
+   - Ils définissent l'apparence de base
+   - Ils assurent une bonne lisibilité
+
+4. INTERACTION AVEC MATERIAL UI :
+   - Ces styles sont appliqués AVANT les styles de Material UI
+   - Ils servent de "base" sur laquelle Material UI construit
+   - Ils assurent une cohérence même si Material UI n'est pas chargé
+
+C'est comme les fondations d'une maison : même si on ne les voit pas,
+elles sont essentielles pour que tout tienne debout et soit stable !
+*/
