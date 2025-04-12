@@ -1,104 +1,72 @@
 // ********** IMPORTS **********
-// Import des éléments de base de React
 import React, { useState, useEffect } from 'react';
-// Import des composants Material-UI pour l'interface graphique
-import { 
-  Box,  // Conteneur flexible
-  Typography,  // Pour les textes et titres
-  Paper,  // Carte/surface surélevée
-  Tabs, Tab,  // Onglets de navigation
-  CircularProgress,  // Indicateur de chargement
-  Alert,  // Messages d'alerte
-  Table, TableBody, TableCell,  // Composants pour créer des tableaux
-  TableContainer, TableHead, TableRow,
-  Chip,  // Badge/étiquette
-  Button  // Bouton
+import {
+  Box, Typography, Paper, Tabs, Tab, CircularProgress, Alert,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Chip, Button
 } from '@mui/material';
-
-// Hook de navigation de React Router
 import { useNavigate } from 'react-router-dom';
-// Service qui gère les appels API pour les alertes
 import { alerteService } from '../../services/alerteService';
-// Icônes pour les différents états
 import WarningIcon from '@mui/icons-material/Warning';
 import ErrorIcon from '@mui/icons-material/Error';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-// Fonction pour formater les dates
 import { format } from 'date-fns';
+import type { Alerte } from '../../types'; // ✅ Type centralisé
 
-// Interface TypeScript qui définit la structure d'une alerte
-interface Alerte {
-  id?: number;  // ? signifie optionnel
-  identifiant_custom: string;  // Identifiant unique de l'EPI
-  marque: string;
-  modèle: string;
-  dernier_controle: string;  // Date du dernier contrôle
-  prochain_controle: string;  // Date du prochain contrôle prévu
-  statut: 'À jour' | 'À venir' | 'En retard';  // Statut possible de l'alerte
-  urgence: 'normale' | 'moyenne' | 'haute';  // Niveau d'urgence
-}
-
-// Composant principal qui affiche la liste des alertes
 const AlertesList: React.FC = () => {
-  // Hook de navigation pour rediriger l'utilisateur
   const navigate = useNavigate();
-  
-  // États (variables) du composant avec useState
-  const [alertes, setAlertes] = useState<Alerte[]>([]);  // Toutes les alertes
-  const [filteredAlertes, setFilteredAlertes] = useState<Alerte[]>([]);  // Alertes filtrées
-  const [loading, setLoading] = useState(true);  // État de chargement
-  const [error, setError] = useState<string | null>(null);  // Message d'erreur
-  const [tabValue, setTabValue] = useState(0);  // Onglet actif
-  const [stats, setStats] = useState({  // Statistiques des alertes
+
+  const [alertes, setAlertes] = useState<Alerte[]>([]);
+  const [filteredAlertes, setFilteredAlertes] = useState<Alerte[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [tabValue, setTabValue] = useState(0);
+  const [stats, setStats] = useState({
     total: 0,
     enRetard: 0,
     aVenir: 0
   });
 
-  // useEffect : s'exécute au chargement du composant
   useEffect(() => {
-    // Fonction qui récupère les alertes depuis l'API
     const fetchAlertes = async () => {
       try {
-        setLoading(true);  // Affiche le loader
-        const data = await alerteService.getAll();  // Appel API
-        setAlertes(data);  // Stocke les alertes
-        
-        // Calcule les statistiques pour chaque catégorie
+        setLoading(true);
+        const data = await alerteService.getAll();
+        setAlertes(data);
+
         const enRetard = data.filter(a => a.statut === 'En retard').length;
         const aVenir = data.filter(a => a.statut === 'À venir').length;
-        
+
         setStats({
           total: data.length,
           enRetard,
           aVenir
         });
-        
-        filterAlertesByTab(tabValue, data);  // Filtre initial selon l'onglet
+
+        filterAlertesByTab(tabValue, data);
       } catch (error) {
         console.error('Erreur lors de la récupération des alertes:', error);
         setError('Erreur lors du chargement des alertes. Veuillez réessayer.');
       } finally {
-        setLoading(false);  // Cache le loader
+        setLoading(false);
       }
     };
 
-    fetchAlertes();  // Lance la récupération des données
-  }, []);  // [] signifie "une seule fois au chargement"
+    fetchAlertes();
+  }, []);
 
-  // Fonction qui filtre les alertes selon l'onglet sélectionné
   const filterAlertesByTab = (tabIndex: number, data: Alerte[] = alertes) => {
     switch (tabIndex) {
-      case 0: // Toutes les alertes
+      case 0:
         setFilteredAlertes(data);
         break;
-      case 1: // Uniquement les alertes en retard
+      case 1:
         setFilteredAlertes(data.filter(a => a.statut === 'En retard'));
         break;
-      case 2: // Uniquement les alertes à venir
+      case 2:
         setFilteredAlertes(data.filter(a => a.statut === 'À venir'));
         break;
-      case 3: // Uniquement les alertes à jour
+      case 3:
         setFilteredAlertes(data.filter(a => a.statut === 'À jour'));
         break;
       default:
@@ -106,93 +74,40 @@ const AlertesList: React.FC = () => {
     }
   };
 
-  // Gère le changement d'onglet
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
     filterAlertesByTab(newValue);
   };
 
-  // Redirige vers la page de détail d'un EPI
   const handleViewEPI = (id?: number) => {
-    if (id) {
-      navigate(`/epis/${id}`);
-    }
+    if (id) navigate(`/epis/${id}`);
   };
 
-  // Redirige vers le formulaire de contrôle avec l'ID de l'EPI pré-rempli
   const handleAddControle = (id?: number) => {
-    if (id) {
-      navigate(`/controles/new?epiId=${id}`);
-    }
+    if (id) navigate(`/controles/new?epiId=${id}`);
   };
 
-  // Rendu du composant
   return (
     <Box>
-      {/* Titre de la page */}
-      <Typography variant="h5" gutterBottom>
-        Alertes de contrôle
-      </Typography>
-      
-      {/* Barre d'onglets pour filtrer les alertes */}
+      <Typography variant="h5" gutterBottom>Alertes de contrôle</Typography>
+
       <Paper elevation={3} sx={{ mb: 3 }}>
-        <Tabs 
-          value={tabValue} 
+        <Tabs
+          value={tabValue}
           onChange={handleTabChange}
           variant="fullWidth"
           sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
-          {/* Onglet "Toutes" avec le nombre total */}
-          <Tab 
-            label={
-              <Box display="flex" alignItems="center">
-                <span>Toutes ({stats.total})</span>
-              </Box>
-            } 
-          />
-          {/* Onglet "En retard" avec icône rouge */}
-          <Tab 
-            label={
-              <Box display="flex" alignItems="center">
-                <ErrorIcon fontSize="small" sx={{ mr: 1, color: 'error.main' }} />
-                En retard ({stats.enRetard})
-              </Box>
-            } 
-          />
-          {/* Onglet "À venir" avec icône orange */}
-          <Tab 
-            label={
-              <Box display="flex" alignItems="center">
-                <WarningIcon fontSize="small" sx={{ mr: 1, color: 'warning.main' }} />
-                À venir ({stats.aVenir})
-              </Box>
-            } 
-          />
-          {/* Onglet "À jour" avec icône verte */}
-          <Tab 
-            label={
-              <Box display="flex" alignItems="center">
-                <CheckCircleIcon fontSize="small" sx={{ mr: 1, color: 'success.main' }} />
-                À jour ({stats.total - stats.enRetard - stats.aVenir})
-              </Box>
-            } 
-          />
+          <Tab label={<Box display="flex" alignItems="center">Toutes ({stats.total})</Box>} />
+          <Tab label={<Box display="flex" alignItems="center"><ErrorIcon fontSize="small" sx={{ mr: 1, color: 'error.main' }} />En retard ({stats.enRetard})</Box>} />
+          <Tab label={<Box display="flex" alignItems="center"><WarningIcon fontSize="small" sx={{ mr: 1, color: 'warning.main' }} />À venir ({stats.aVenir})</Box>} />
+          <Tab label={<Box display="flex" alignItems="center"><CheckCircleIcon fontSize="small" sx={{ mr: 1, color: 'success.main' }} />À jour ({stats.total - stats.enRetard - stats.aVenir})</Box>} />
         </Tabs>
       </Paper>
-      
-      {/* Contenu principal */}
+
       <Paper elevation={3} sx={{ p: 3 }}>
-        {/* Affiche les erreurs s'il y en a */}
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
-        
-        {/* Affichage conditionnel selon l'état :
-            - Chargement : affiche un spinner
-            - Pas d'alertes : affiche un message
-            - Alertes présentes : affiche le tableau */}
+        {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+
         {loading ? (
           <Box display="flex" justifyContent="center" p={3}>
             <CircularProgress />
@@ -202,7 +117,6 @@ const AlertesList: React.FC = () => {
             Aucune alerte à afficher dans cette catégorie.
           </Typography>
         ) : (
-          // Tableau des alertes
           <TableContainer>
             <Table>
               <TableHead>
@@ -216,7 +130,6 @@ const AlertesList: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {/* Parcourt et affiche chaque alerte */}
                 {filteredAlertes.map((alerte) => (
                   <TableRow key={alerte.id}>
                     <TableCell>{alerte.identifiant_custom}</TableCell>
@@ -224,37 +137,20 @@ const AlertesList: React.FC = () => {
                     <TableCell>{format(new Date(alerte.dernier_controle), 'dd/MM/yyyy')}</TableCell>
                     <TableCell>{format(new Date(alerte.prochain_controle), 'dd/MM/yyyy')}</TableCell>
                     <TableCell>
-                      {/* Badge coloré selon le statut */}
-                      <Chip 
-                        label={alerte.statut} 
+                      <Chip
+                        label={alerte.statut}
                         color={
-                          alerte.statut === 'En retard' 
-                            ? 'error' 
-                            : alerte.statut === 'À venir' 
-                              ? 'warning' 
-                              : 'success'
+                          alerte.statut === 'En retard' ? 'error' :
+                          alerte.statut === 'À venir' ? 'warning' :
+                          'success'
                         }
                         size="small"
                       />
                     </TableCell>
                     <TableCell>
                       <Box>
-                        {/* Boutons d'action pour chaque alerte */}
-                        <Button 
-                          size="small" 
-                          onClick={() => handleViewEPI(alerte.id)}
-                          sx={{ mr: 1 }}
-                        >
-                          Voir
-                        </Button>
-                        <Button 
-                          size="small" 
-                          variant="contained" 
-                          color="primary"
-                          onClick={() => handleAddControle(alerte.id)}
-                        >
-                          Contrôler
-                        </Button>
+                        <Button size="small" onClick={() => handleViewEPI(alerte.id)} sx={{ mr: 1 }}>Voir</Button>
+                        <Button size="small" variant="contained" color="primary" onClick={() => handleAddControle(alerte.id)}>Contrôler</Button>
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -268,5 +164,4 @@ const AlertesList: React.FC = () => {
   );
 };
 
-// Exporte le composant pour l'utiliser ailleurs
-export default AlertesList; 
+export default AlertesList;

@@ -24,9 +24,9 @@ export const typeEpiService = {
   getAll: async (): Promise<TypeEPI[]> => {
     try {
       // On fait un appel GET à l'API et on attend la réponse
-      const response = await api.get<ApiResponse<TypeEPI[]>>('/api/epi-types');
+      const response = await api.get<ApiResponse<TypeEPI[]>>('/epi-types');
       // On retourne les données ou un tableau vide si pas de données
-      return response.data || [];
+      return response.data.data || [];
     } catch (error) {
       // Si une erreur survient, on l'affiche dans la console pour débugger
       console.error('Erreur lors de la récupération des types d\'EPI:', error);
@@ -40,8 +40,8 @@ export const typeEpiService = {
   getById: async (id: number): Promise<TypeEPI | null> => {
     try {
       // On fait un appel GET avec l'ID dans l'URL
-      const response = await api.get<ApiResponse<TypeEPI>>(`/api/epi-types/${id}`);
-      return response.data;
+      const response = await api.get<ApiResponse<TypeEPI>>(`/epi-types/${id}`);
+      return response.data.data ;
     } catch (error) {
       // En cas d'erreur, on affiche un message dans la console
       console.error(`Erreur lors de la récupération du type d'EPI avec l'ID ${id}:`, error);

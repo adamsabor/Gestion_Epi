@@ -1,109 +1,53 @@
-// ********** IMPORTS **********
-// On importe axios qui permet de faire des appels HTTP (requêtes vers l'API)
-// et AxiosResponse qui définit le format des réponses
-import axios, { AxiosResponse } from 'axios';
+// src/services/api.ts
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
-// ********** CONFIGURATION D'AXIOS **********
-// On crée une instance personnalisée d'axios avec des paramètres par défaut
-// Cette instance sera utilisée pour TOUS les appels API de l'application
+// Création de l'instance axios avec baseURL propre (sans double /api)
 const instance = axios.create({
-  // L'URL de base de notre API. Si pas de variable d'environnement, on utilise localhost:4000
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:4000',
-  // On précise que toutes nos requêtes enverront et recevront du JSON
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  baseURL: 'http://localhost:3001/api',
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// ********** INTERCEPTEURS **********
-// Les intercepteurs sont comme des "gardiens" qui surveillent toutes les requêtes
-// et réponses. Ils permettent d'ajouter des comportements automatiques.
-
-// Intercepteur pour les REQUÊTES (avant d'envoyer au serveur)
+// Log toutes les requêtes sortantes
 instance.interceptors.request.use(
-  // Fonction exécutée AVANT chaque requête
   (config) => {
-    // On affiche dans la console l'URL complète de la requête (pour le debug)
     console.log(`Tentative de connexion à ${config.baseURL}${config.url}`);
     return config;
   },
-  // Fonction exécutée si la requête échoue
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Intercepteur pour les RÉPONSES (après réception du serveur)
+// Gestion propre des erreurs
 instance.interceptors.response.use(
-  // Si la réponse est OK, on ne renvoie que les données (pas les métadonnées)
-  (response) => {
-    return response.data;
-  },
-  // Si la réponse contient une erreur, on la traite
+  (response) => response,
   (error) => {
-    // Si on a reçu une réponse du serveur mais avec une erreur
     if (error.response) {
-      console.error(`Erreur lors de l'appel API (${error.config.url}): ${error.response.status} - ${error.response.data.message || error.message}`);
-    } 
-    // Si le serveur n'a pas répondu du tout
-    else if (error.request) {
-      console.error(`Erreur lors de l'appel API (${error.config?.url}): Pas de réponse du serveur`);
-    } 
-    // Pour toute autre erreur
-    else {
-      console.error(`Erreur lors de l'appel API: ${error.message}`);
+      console.error(
+        `Erreur API (${error.config.url}): ${error.response.status} - ${error.response.data?.message || error.message}`
+      );
+    } else if (error.request) {
+      console.error(`Aucune réponse reçue de l’API (${error.config?.url})`);
+    } else {
+      console.error(`Erreur API: ${error.message}`);
     }
     return Promise.reject(error);
   }
 );
 
-// ********** MÉTHODES HTTP **********
-// On exporte un objet 'api' qui contient les 4 méthodes principales HTTP :
-// GET (lire), POST (créer), PUT (modifier), DELETE (supprimer)
+// Exports des méthodes
 export const api = {
-  // Méthode GET : pour LIRE des données
-  // <T> est un type générique qui s'adapte selon ce qu'on veut récupérer
-  get: async <T>(url: string): Promise<T> => {
-    try {
-      const response = await instance.get<any, T>(url);
-      return response;
-    } catch (error) {
-      console.error(`Erreur lors de l'appel API (${url}):`, error);
-      throw error;
-    }
+  get: async <T>(url: string): Promise<AxiosResponse<T>> => {
+    return instance.get<T>(url);
   },
-  
-  // Méthode POST : pour CRÉER des données
-  // data contient les informations à envoyer au serveur
-  post: async <T>(url: string, data: any): Promise<T> => {
-    try {
-      const response = await instance.post<any, T>(url, data);
-      return response;
-    } catch (error) {
-      console.error(`Erreur lors de l'appel API (${url}):`, error);
-      throw error;
-    }
+  post: async <T>(url: string, data: any): Promise<AxiosResponse<T>> => {
+    return instance.post<T>(url, data);
   },
-  
-  // Méthode PUT : pour MODIFIER des données existantes
-  put: async <T>(url: string, data: any): Promise<T> => {
-    try {
-      const response = await instance.put<any, T>(url, data);
-      return response;
-    } catch (error) {
-      console.error(`Erreur lors de l'appel API (${url}):`, error);
-      throw error;
-    }
+  put: async <T>(url: string, data: any): Promise<AxiosResponse<T>> => {
+    return instance.put<T>(url, data);
   },
-  
-  // Méthode DELETE : pour SUPPRIMER des données
-  delete: async <T>(url: string): Promise<T> => {
-    try {
-      const response = await instance.delete<any, T>(url);
-      return response;
-    } catch (error) {
-      console.error(`Erreur lors de l'appel API (${url}):`, error);
-      throw error;
-    }
-  }
-}; 
+  delete: async <T>(url: string): Promise<AxiosResponse<T>> => {
+    return instance.delete<T>(url);
+  },
+};
+
+// On exporte l'instance axios configurée pour être utilisée dans d'autres fichiers
+export default instance;

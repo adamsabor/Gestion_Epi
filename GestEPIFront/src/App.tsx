@@ -15,7 +15,7 @@ import theme from './theme';
 import EPIList from './components/epi/EPIList';         // Liste des EPIs
 import Dashboard from './components/dashboard/Dashboard'; // Tableau de bord
 import EPIForm from './components/epi/EPIForm';         // Formulaire EPI
-import EPIDetail from './components/epi/EPIDetail';     // Détails d'un EPI
+import EPIDetails from './components/epi/EPIDetails';
 import ControleForm from './components/controle/ControleForm'; // Formulaire de contrôle
 import AlertesList from './components/alerte/AlertesList';    // Liste des alertes
 import NotFound from './components/common/NotFound';     // Page 404
@@ -46,7 +46,7 @@ function App() {
                             {/* Routes pour la gestion des EPIs */}
                             <Route path="epis" element={<EPIList />} />
                             <Route path="epis/new" element={<EPIForm />} />
-                            <Route path="epis/:id" element={<EPIDetail />} />
+                            <Route path="/epis/:id" element={<EPIDetails />} />
                             <Route path="epis/edit/:id" element={<EPIForm />} />
                             {/* Route pour créer un nouveau contrôle */}
                             <Route path="controles/new" element={<ControleForm />} />

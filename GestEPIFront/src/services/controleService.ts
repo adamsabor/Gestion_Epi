@@ -24,9 +24,9 @@ export const controleService = {
   getAll: async (): Promise<Controle[]> => {
     try {
       // On fait un appel GET à l'API et on attend la réponse
-      const response = await api.get<ApiResponse<Controle[]>>('/api/controles');
+      const response = await api.get<ApiResponse<Controle[]>>('/controles');
       // On retourne les données ou un tableau vide si pas de données
-      return response.data || [];
+      return response.data.data || [];
     } catch (error) {
       // Si une erreur survient, on l'affiche dans la console pour débugger
       console.error('Erreur lors de la récupération des contrôles:', error);
@@ -40,8 +40,8 @@ export const controleService = {
   getByEpiId: async (epiId: number): Promise<Controle[]> => {
     try {
       // On fait un appel GET avec l'ID de l'EPI dans l'URL
-      const response = await api.get<ApiResponse<Controle[]>>(`/api/controles/epi/${epiId}`);
-      return response.data || [];
+      const response = await api.get<ApiResponse<Controle[]>>(`/epi/${epiId}`);
+      return response.data.data || [];
     } catch (error) {
       console.error(`Erreur lors de la récupération des contrôles pour l'EPI ${epiId}:`, error);
       throw error;
@@ -53,8 +53,8 @@ export const controleService = {
   getById: async (id: number): Promise<Controle> => {
     try {
       // On fait un appel GET avec l'ID du contrôle dans l'URL
-      const response = await api.get<ApiResponse<Controle>>(`/api/controles/${id}`);
-      return response.data;
+      const response = await api.get<ApiResponse<Controle>>(`/controles/${id}`);
+      return response.data.data;
     } catch (error) {
       console.error(`Erreur lors de la récupération du contrôle avec l'ID ${id}:`, error);
       throw error;
@@ -66,8 +66,8 @@ export const controleService = {
   create: async (controle: Controle): Promise<Controle> => {
     try {
       // On fait un appel POST avec les données du contrôle
-      const response = await api.post<ApiResponse<Controle>>('/api/controles', controle);
-      return response.data;
+      const response = await api.post<ApiResponse<Controle>>('/controles', controle);
+      return response.data.data;
     } catch (error) {
       console.error('Erreur lors de la création du contrôle:', error);
       throw error;
