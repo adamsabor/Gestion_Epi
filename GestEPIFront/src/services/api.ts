@@ -1,4 +1,4 @@
-// src/services/api.ts
+// ✅ api.ts – Corrigé proprement avec logs + gestion des erreurs et baseURL propre
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 
 // Création de l'instance axios avec baseURL propre (sans double /api)
@@ -10,30 +10,30 @@ const instance = axios.create({
 // Log toutes les requêtes sortantes
 instance.interceptors.request.use(
   (config) => {
-    console.log(`Tentative de connexion à ${config.baseURL}${config.url}`);
+    console.log(`📡 Requête envoyée vers ${config.baseURL}${config.url}`);
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Gestion propre des erreurs
+// Gestion des erreurs globales
 instance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
       console.error(
-        `Erreur API (${error.config.url}): ${error.response.status} - ${error.response.data?.message || error.message}`
+        `❌ Erreur API (${error.config.url}) : ${error.response.status} - ${error.response.data?.message || error.message}`
       );
     } else if (error.request) {
-      console.error(`Aucune réponse reçue de l’API (${error.config?.url})`);
+      console.error(`❌ Aucune réponse de l’API pour : ${error.config?.url}`);
     } else {
-      console.error(`Erreur API: ${error.message}`);
+      console.error(`❌ Erreur lors de la requête API : ${error.message}`);
     }
     return Promise.reject(error);
   }
 );
 
-// Exports des méthodes
+// Méthodes génériques pour utiliser l'instance axios
 export const api = {
   get: async <T>(url: string): Promise<AxiosResponse<T>> => {
     return instance.get<T>(url);
@@ -49,5 +49,4 @@ export const api = {
   },
 };
 
-// On exporte l'instance axios configurée pour être utilisée dans d'autres fichiers
 export default instance;

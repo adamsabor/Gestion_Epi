@@ -18,6 +18,8 @@ import EPIForm from './components/epi/EPIForm';         // Formulaire EPI
 import EPIDetails from './components/epi/EPIDetails';
 import ControleForm from './components/controle/ControleForm'; // Formulaire de contrôle
 import AlertesList from './components/alerte/AlertesList';    // Liste des alertes
+import Login from './components/common/Login';
+
 import NotFound from './components/common/NotFound';     // Page 404
 // Gestion des dates en français
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -39,6 +41,8 @@ function App() {
                 <Router>
                     {/* Routes : Définit toutes les pages accessibles */}
                     <Routes>
+                       <Route path="/login" element={<Login />} />
+
                         {/* Route principale avec notre Layout */}
                         <Route path="/" element={<Layout />}>
                             {/* Page d'accueil : le tableau de bord */}
