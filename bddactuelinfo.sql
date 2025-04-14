@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : localhost:8889
--- Généré le : sam. 22 mars 2025 à 11:38
+-- Généré le : lun. 14 avr. 2025 à 07:10
 -- Version du serveur : 5.7.39
 -- Version de PHP : 7.4.33
 
@@ -41,10 +41,7 @@ CREATE TABLE `Controle_EPI` (
 --
 
 INSERT INTO `Controle_EPI` (`id`, `date_controle`, `gestionnaire_id`, `epi_id`, `statut_id`, `remarques`) VALUES
-(1, '2025-03-04', 1, 1, 1, 'Contrôle régulier. Casque en parfait état.'),
-(2, '2025-03-04', 1, 2, 2, 'Usure sur la sangle. Réparation nécessaire.'),
-(3, '2025-03-04', 1, 3, 1, 'Contrôle effectué. Corde dynamique en bon état.'),
-(4, '2025-03-04', 1, 4, 1, 'Aucune anomalie détectée. Gants validés.');
+(2, '2025-03-04', 1, 2, 2, 'Usure sur la sangle. Réparation nécessaire.');
 
 -- --------------------------------------------------------
 
@@ -64,18 +61,16 @@ CREATE TABLE `EPI` (
   `date_fabrication` date NOT NULL,
   `date_mise_en_service` date NOT NULL,
   `périodicité_controle` int(11) NOT NULL,
-  `epi_type_id` int(11) DEFAULT NULL
+  `epi_type_id` int(11) DEFAULT NULL,
+  `statut_id` int(11) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Déchargement des données de la table `EPI`
 --
 
-INSERT INTO `EPI` (`id`, `identifiant_custom`, `marque`, `modèle`, `numéro_série`, `taille`, `couleur`, `date_achat`, `date_fabrication`, `date_mise_en_service`, `périodicité_controle`, `epi_type_id`) VALUES
-(1, 'EPI-CAS-001', 'Petzl', 'Vertex Vent', 'CAS12344', NULL, 'Blanc', '2023-05-10', '2023-04-15', '2023-05-20', 12, 1),
-(2, 'EPI-BAU-001', 'Black Diamond', 'Momentum', 'BAU67890', 'M', 'Noir', '2023-06-01', '2023-05-20', '2023-06-05', 6, 2),
-(3, 'EPI-COR-001', 'Beal', 'Top Gun', 'COR112233', '50m', 'Rouge', '2023-07-01', '2023-06-20', '2023-07-05', 6, 3),
-(4, 'EPI-GAN-001', 'Honeywell', 'WorkEasy', 'GAN445566', NULL, 'Gris', '2023-08-10', '2023-07-30', '2023-08-15', 12, 4);
+INSERT INTO `EPI` (`id`, `identifiant_custom`, `marque`, `modèle`, `numéro_série`, `taille`, `couleur`, `date_achat`, `date_fabrication`, `date_mise_en_service`, `périodicité_controle`, `epi_type_id`, `statut_id`) VALUES
+(2, 'EPI-BAU-001', 'Black Diamond', 'Momentu', 'BAU67890', 'M', 'Noir', '2023-05-30', '2023-05-18', '2023-06-03', 6, 2, 1);
 
 -- --------------------------------------------------------
 
@@ -148,16 +143,17 @@ CREATE TABLE `Utilisateur` (
   `nom` varchar(255) NOT NULL,
   `prénom` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `user_type_id` int(11) DEFAULT NULL
+  `user_type_id` int(11) DEFAULT NULL,
+  `mot_de_passe` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Déchargement des données de la table `Utilisateur`
 --
 
-INSERT INTO `Utilisateur` (`id`, `nom`, `prénom`, `email`, `user_type_id`) VALUES
-(1, 'Sabor', 'Adam', 'saboradam5@gmail.com', 1),
-(2, 'Buntaro', 'Mori', 'Buntaro.Mori@example.com', 2);
+INSERT INTO `Utilisateur` (`id`, `nom`, `prénom`, `email`, `user_type_id`, `mot_de_passe`) VALUES
+(1, 'Sabor', 'Adam', 'saboradam5@gmail.com', 1, 'mdp123'),
+(2, 'Buntaro', 'Mori', 'Buntaro.Mori@example.com', 2, 'mdp456');
 
 --
 -- Index pour les tables déchargées
@@ -215,13 +211,13 @@ ALTER TABLE `Utilisateur`
 -- AUTO_INCREMENT pour la table `Controle_EPI`
 --
 ALTER TABLE `Controle_EPI`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pour la table `EPI`
 --
 ALTER TABLE `EPI`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pour la table `Statut_EPI`
