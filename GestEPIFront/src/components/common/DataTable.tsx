@@ -1,52 +1,64 @@
-// Import de React, nécessaire pour créer des composants
+// ************************************************************************
+// 🎓 COMPOSANT REACT DATATABLE - PROJET GESTEPI 
+// Pour l'épreuve E6 BTS SIO SLAM
+// ************************************************************************
+
+// 📚 IMPORTS NÉCESSAIRES
+// React est la bibliothèque de base pour créer des composants
+// C'est la première chose à importer dans un fichier React
 import React from 'react';
-// Import des éléments de Material-UI DataGrid pour créer des tableaux de données avancés
-// DataGrid : Le composant principal pour afficher les données en tableau
-// GridColDef : Type TypeScript qui définit la structure d'une colonne
-// GridPaginationModel : Type pour gérer la pagination
+
+// Material-UI DataGrid : une bibliothèque de tableaux avancés
+// - DataGrid : Le composant principal qui crée le tableau
+// - GridColDef : Interface TypeScript qui définit la structure d'une colonne
+// - GridPaginationModel : Interface pour gérer la pagination (nb lignes par page, page actuelle)
 import { DataGrid, GridColDef, GridPaginationModel } from '@mui/x-data-grid';
 
-// Interface qui définit les propriétés (props) que notre composant DataTable peut recevoir
-// C'est comme un contrat qui garantit que les bonnes données seront fournies
+// ********** INTERFACE TYPESCRIPT **********
+// Pour l'E6 : Cette interface définit les props que notre composant peut recevoir
+// C'est comme un contrat qui garantit que le composant reçoit les bonnes données
 export interface DataTableProps {
-  rows: any[];                          // Les données à afficher dans le tableau (lignes)
-  columns: GridColDef[];                // La définition des colonnes du tableau
-  rowsPerPageOptions?: number[];        // Options pour le nombre de lignes par page (optionnel)
-  checkboxSelection?: boolean;          // Active/désactive les cases à cocher (optionnel)
-  disableSelectionOnClick?: boolean;    // Désactive la sélection au clic (optionnel)
-  pageSize?: number;                    // Nombre de lignes par page par défaut (optionnel)
+  rows: any[];                    // Les données à afficher dans le tableau
+  columns: GridColDef[];          // Définition des colonnes (nom, type, largeur...)
+  rowsPerPageOptions?: number[];  // Options pour le nombre de lignes par page
+  checkboxSelection?: boolean;    // Active/désactive les cases à cocher
+  disableSelectionOnClick?: boolean; // Empêche la sélection au clic
+  pageSize?: number;              // Nombre de lignes par page par défaut
 }
 
-// Composant DataTable : Un tableau de données réutilisable dans tout le projet
-// Il utilise les props définies ci-dessus avec des valeurs par défaut pour les props optionnelles
+// ********** COMPOSANT REACT **********
+// Pour l'E6 : Un composant fonctionnel (FC) qui crée un tableau réutilisable
+// Il utilise les generics (<DataTableProps>) pour le typage des props
 const DataTable: React.FC<DataTableProps> = ({
   rows,
   columns,
-  rowsPerPageOptions = [5, 10, 25],    // Par défaut : choix entre 5, 10 ou 25 lignes/page
-  checkboxSelection = false,            // Par défaut : pas de cases à cocher
-  disableSelectionOnClick = false,      // Par défaut : sélection au clic activée
-  pageSize = 10                         // Par défaut : 10 lignes par page
+  rowsPerPageOptions = [5, 10, 25],    // Valeurs par défaut
+  checkboxSelection = false,
+  disableSelectionOnClick = false,
+  pageSize = 10
 }) => {
-  // État local pour gérer la pagination
-  // useState conserve les informations de page actuelle et lignes par page
+  // ********** HOOK USESTATE **********
+  // Pour l'E6 : useState est un hook React qui gère l'état local du composant
+  // Ici, il gère la pagination (quelle page on affiche, combien de lignes)
   const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
-    pageSize: pageSize,   // Nombre de lignes par page
-    page: 0,             // Page actuelle (commence à 0)
+    pageSize: pageSize,  // Nombre de lignes par page
+    page: 0,            // On commence à la page 0
   });
 
-  // Rendu du composant
+  // ********** RENDU JSX **********
+  // Pour l'E6 : Le JSX est comme du HTML amélioré qui peut inclure du JavaScript
   return (
-    // Conteneur avec une hauteur fixe et largeur complète
+    // Conteneur avec hauteur fixe pour le tableau
     <div style={{ height: 400, width: '100%' }}>
-      {/* Composant DataGrid de Material-UI qui affiche le tableau */}
+      {/* DataGrid de Material-UI avec toutes ses props configurées */}
       <DataGrid
-        rows={rows}                                     // Les données à afficher
-        columns={columns}                               // Structure des colonnes
-        paginationModel={paginationModel}              // Configuration de la pagination
-        onPaginationModelChange={setPaginationModel}   // Gestion des changements de page
-        pageSizeOptions={rowsPerPageOptions}           // Options de nombre de lignes/page
-        checkboxSelection={checkboxSelection}          // Cases à cocher
-        disableRowSelectionOnClick={disableSelectionOnClick}  // Désactive sélection au clic
+        rows={rows}                   // Données à afficher
+        columns={columns}             // Structure des colonnes
+        paginationModel={paginationModel}        // État de la pagination
+        onPaginationModelChange={setPaginationModel}  // Mise à jour pagination
+        pageSizeOptions={rowsPerPageOptions}     // Options nb lignes/page
+        checkboxSelection={checkboxSelection}     // Cases à cocher
+        disableRowSelectionOnClick={disableSelectionOnClick}  // Désactive sélection
       />
     </div>
   );
@@ -55,21 +67,16 @@ const DataTable: React.FC<DataTableProps> = ({
 // Export du composant pour l'utiliser dans d'autres fichiers
 export default DataTable;
 
-/*
-RÉSUMÉ DU FICHIER DataTable.tsx :
-
-Ce composant est un tableau de données réutilisable qui simplifie l'affichage
-des données dans tout le projet GestEPI. Il encapsule le composant DataGrid
-de Material-UI en le rendant plus facile à utiliser.
-
-PLACE DANS L'ARCHITECTURE :
-- Situé dans components/common/ car c'est un composant générique réutilisable
-- Utilisé par exemple dans EPIList.tsx pour afficher la liste des EPIs
-- S'appuie sur Material-UI DataGrid pour un affichage professionnel
-
-POINTS CLÉS POUR L'ORAL :
-1. Composant réutilisable qui uniformise l'affichage des données
-2. Utilisation de TypeScript pour la sécurité du code
-3. Pagination intégrée pour gérer de grandes quantités de données
-4. Interface utilisateur professionnelle avec Material-UI
-*/
+// 📝 RÉSUMÉ POUR L'ÉPREUVE E6
+// Ce fichier est important car il :
+// 1. Crée un composant réutilisable pour afficher des données en tableau
+// 2. Utilise TypeScript pour garantir la sécurité du code
+// 3. Intègre Material-UI pour une interface professionnelle
+// 4. Gère la pagination et les interactions utilisateur
+//
+// Points techniques à souligner :
+// - Composant React moderne (Function Component)
+// - Typage strict avec TypeScript
+// - Props avec valeurs par défaut
+// - Hook useState pour la gestion d'état
+// - Intégration d'une bibliothèque externe (Material-UI)

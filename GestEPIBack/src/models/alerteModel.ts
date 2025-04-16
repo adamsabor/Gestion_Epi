@@ -1,33 +1,39 @@
-// ********** IMPORTS **********
-// On importe l'objet 'db' qui nous permet de nous connecter à la base de données MySQL
-// Il vient du fichier database.ts qui configure la connexion
+// ************************************************************************
+// 🎓 MODÈLE DES ALERTES - PROJET GESTEPI 
+// Pour l'épreuve E6 BTS SIO SLAM
+// ************************************************************************
+
+// 📚 IMPORTS NÉCESSAIRES
+// On importe l'objet db qui contient notre connexion à MySQL
+// Il nous permet d'exécuter des requêtes SQL de façon sécurisée
 import { db } from '../config/database';
 
-// On importe des fonctions utiles pour manipuler les dates depuis la librairie date-fns
+// On importe des fonctions utilitaires de date-fns pour manipuler les dates :
 // - addMonths : ajoute X mois à une date
-// - format : convertit une date en chaîne de caractères (ex: "2024-01-25")
+// - format : convertit une date en chaîne (ex: "2024-01-25") 
 // - parseISO : convertit une chaîne en objet Date
 import { addMonths, format, parseISO } from 'date-fns';
 
-// ********** DÉFINITION DU MODÈLE **********
-// Cette classe gère tout ce qui concerne les alertes pour les contrôles d'EPI
-// Elle fait partie de la couche "Model" qui s'occupe des données
+// 🎯 CLASSE MODÈLE
+// Cette classe gère toute la logique métier des alertes de contrôle des EPI
+// Elle suit le pattern MVC en séparant l'accès aux données de la logique métier
 export class AlerteModel {
 
-  // Cette méthode récupère tous les EPIs avec leur statut d'alerte
-  // - Si on lui passe un statut en paramètre, elle filtre les résultats
-  // - Elle renvoie un tableau d'objets contenant les infos des EPIs
+  // 📥 MÉTHODE PRINCIPALE : RÉCUPÉRATION DES ALERTES
+  // async car on fait des requêtes SQL qui sont asynchrones
+  // statut? est un paramètre optionnel (le ? le rend facultatif)
+  // Promise<any[]> indique qu'on renvoie un tableau d'objets
   async getAlertes(statut?: string): Promise<any[]> {
     try {
-      // On récupère la date d'aujourd'hui au format YYYY-MM-DD
+      // On récupère la date du jour au format YYYY-MM-DD
+      // Cette date servira de référence pour calculer les délais
       const today = format(new Date(), 'yyyy-MM-dd');
       
-      // ********** REQUÊTE SQL **********
-      // Cette requête complexe fait plusieurs choses :
-      // 1. Récupère les infos de base des EPIs (table EPI)
-      // 2. Joint avec la table Type_EPI pour avoir le nom du type
-      // 3. Joint avec la table Controle_EPI pour avoir la date du dernier contrôle
-      // 4. Groupe les résultats par EPI pour n'avoir qu'une ligne par EPI
+      // REQUÊTE SQL COMPLEXE
+      // 1. SELECT e.* : sélectionne toutes les colonnes de la table EPI
+      // 2. JOIN avec Type_EPI : récupère le nom du type d'EPI
+      // 3. LEFT JOIN avec Controle_EPI : récupère le dernier contrôle
+      // 4. GROUP BY : regroupe les résultats par EPI
       const [epis] = await db.query(`
         SELECT e.*, 
                t.nom as type_nom,
@@ -39,18 +45,20 @@ export class AlerteModel {
         GROUP BY e.id
       `);
       
-      // ********** TRAITEMENT DES RÉSULTATS **********
-      // Pour chaque EPI récupéré, on va :
-      // 1. Calculer la date du prochain contrôle
-      // 2. Déterminer son statut d'alerte
+      // TRAITEMENT DES DONNÉES
+      // Pour chaque EPI, on calcule son statut d'alerte
+      // map() transforme chaque EPI en y ajoutant des informations
       const alertes = (epis as any[]).map((epi: any) => {
-        // On détermine la date du dernier contrôle :
-        // - Soit la date du dernier contrôle si elle existe
-        // - Sinon la date de mise en service
-        // - En dernier recours la date d'aujourd'hui
+        // On détermine la date de référence pour les calculs
+        // Soit le dernier contrôle, soit la mise en service
         let dernierControle;
         
         try {
+          // GESTION DES DATES
+          // On vérifie dans l'ordre :
+          // 1. Date du dernier contrôle
+          // 2. Date de mise en service
+          // 3. Date du jour en dernier recours
           if (epi.dernier_controle && typeof epi.dernier_controle === 'string') {
             dernierControle = parseISO(epi.dernier_controle);
           } else if (epi.date_mise_en_service && typeof epi.date_mise_en_service === 'string') {
@@ -59,20 +67,22 @@ export class AlerteModel {
             dernierControle = new Date();
           }
         } catch (error) {
-          // En cas d'erreur dans le format des dates, on utilise aujourd'hui
+          // En cas d'erreur de format de date
           console.error('Erreur lors du parsing de la date:', error);
           dernierControle = new Date();
         }
         
-        // On calcule la date du prochain contrôle en ajoutant la périodicité
-        // Par défaut, la périodicité est de 12 mois si non spécifiée
+        // CALCUL DU PROCHAIN CONTRÔLE
+        // On ajoute la périodicité (en mois) à la date de référence
+        // Par défaut : 12 mois si non spécifié
         const prochainControle = addMonths(dernierControle, epi.périodicité_controle || 12);
         const prochainControleStr = format(prochainControle, 'yyyy-MM-dd');
         
-        // On détermine le statut de l'alerte :
-        // - "En retard" si la date est dépassée (urgence haute)
-        // - "À venir" si c'est dans moins d'un mois (urgence moyenne)
-        // - "À jour" sinon (urgence normale)
+        // DÉTERMINATION DU STATUT
+        // On compare les dates pour définir l'urgence :
+        // - En retard : date dépassée
+        // - À venir : dans moins d'un mois
+        // - À jour : RAS
         let statutEpi = 'À jour';
         let urgence = 'normale';
         
@@ -87,9 +97,9 @@ export class AlerteModel {
           }
         }
         
-        // On retourne l'EPI enrichi avec les nouvelles infos calculées
+        // On retourne l'objet EPI enrichi avec les nouvelles infos
         return {
-          ...epi,
+          ...epi, // spread operator : copie toutes les propriétés existantes
           dernier_controle: epi.dernier_controle || epi.date_mise_en_service,
           prochain_controle: prochainControleStr,
           statut: statutEpi,
@@ -97,36 +107,31 @@ export class AlerteModel {
         };
       });
       
+      // FILTRAGE FINAL
       // Si un statut est demandé, on filtre les résultats
-      // Sinon on renvoie tous les EPIs
+      // Sinon on renvoie tout
       return statut 
         ? alertes.filter((alerte: any) => alerte.statut === statut)
         : alertes;
+        
     } catch (error) {
-      // En cas d'erreur, on la log et on la propage
+      // GESTION DES ERREURS
+      // On log l'erreur et on la propage
       console.error('Erreur lors de la récupération des alertes:', error);
       throw error;
     }
   }
 }
 
-/*
-RÉSUMÉ DU FICHIER alerteModel.ts :
-
-Ce fichier est crucial pour la gestion des alertes de contrôle des EPIs.
-Il fait partie de la couche "Model" et s'occupe de :
-
-1. Récupérer les EPIs depuis la base de données avec leurs infos
-2. Calculer pour chaque EPI :
-   - La date du prochain contrôle
-   - Son statut (En retard, À venir, À jour)
-   - Le niveau d'urgence (haute, moyenne, normale)
-
-C'est ce modèle qui permet d'afficher les alertes dans l'interface
-et d'aider les gestionnaires à suivre les contrôles à effectuer.
-
-Il interagit avec :
-- La base de données (via l'objet db)
-- Les tables : EPI, Type_EPI, Controle_EPI
-- Le contrôleur qui l'utilise pour répondre aux requêtes HTTP
-*/
+// 📝 RÉSUMÉ POUR L'ÉPREUVE E6
+// Ce modèle est crucial car il gère la sécurité des EPI en :
+// 1. Surveillant les dates de contrôle
+// 2. Calculant les délais et urgences
+// 3. Alertant sur les retards
+//
+// Points techniques à souligner :
+// - Architecture MVC
+// - Requêtes SQL complexes (JOIN, GROUP BY)
+// - Gestion des dates avec date-fns
+// - Programmation orientée objet avec TypeScript
+// - Gestion des erreurs

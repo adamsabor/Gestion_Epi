@@ -1,36 +1,53 @@
-// ********** IMPORTS **********
-// ReactNode permet de typer les éléments enfants (children) qu'on peut passer à un composant
+// ************************************************************************
+// 🎓 COMPOSANT REACT LAYOUT - PROJET GESTEPI 
+// Pour l'épreuve E6 BTS SIO SLAM
+// ************************************************************************
+
+// 📚 IMPORTS NÉCESSAIRES
+// ReactNode est un type TypeScript qui représente n'importe quel élément React valide
+// On l'utilise pour typer les "children" qui peuvent être du texte, des composants, etc.
 import { ReactNode } from 'react';
 
-// Import des composants Material-UI nécessaires pour créer la mise en page
-// Box : conteneur flexible, AppBar : barre de navigation en haut
-// Drawer : menu latéral, List/ListItem... : éléments de liste pour le menu
-import { Box, AppBar, Toolbar, Typography, Drawer, List, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
+// Material-UI fournit des composants graphiques prêts à l'emploi
+// Box : Conteneur flexible (comme une div améliorée)
+// AppBar : Barre de navigation en haut de l'application
+// Drawer : Menu latéral coulissant
+// List/ListItem : Pour créer des listes structurées
+import { 
+  Box, AppBar, Toolbar, Typography, 
+  Drawer, List, ListItemButton, 
+  ListItemIcon, ListItemText 
+} from '@mui/material';
 
-// Hook de React Router pour la navigation entre les pages
+// useNavigate est un hook de React Router pour la navigation
+// Il permet de changer de page sans recharger l'application
 import { useNavigate } from 'react-router-dom';
 
-// Import des icônes Material-UI qui seront utilisées dans le menu
+// Icônes Material-UI pour le menu
 import InventoryIcon from '@mui/icons-material/Inventory';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 
+// ********** CONSTANTES **********
 // Largeur fixe du menu latéral en pixels
 const drawerWidth = 240;
 
-// Interface TypeScript qui définit les props que notre Layout peut recevoir
-// children représente tout le contenu qui sera placé dans la mise en page
+// ********** INTERFACE TYPESCRIPT **********
+// Pour l'E6 : Cette interface définit la structure des props du composant
+// children est de type ReactNode et contiendra le contenu des pages
 interface LayoutProps {
   children: ReactNode;
 }
 
-// Composant Layout : C'est la structure principale de l'application
-// Il crée une mise en page avec une barre de navigation en haut et un menu latéral
+// ********** COMPOSANT REACT **********
+// Layout est un composant qui enveloppe toutes les pages de l'application
+// Il fournit la structure commune : barre du haut + menu latéral + zone de contenu
 const Layout = ({ children }: LayoutProps) => {
-  // Hook pour naviguer entre les pages
+  // Hook useNavigate pour la navigation
+  // Exemple : navigate('/epis') redirige vers la page des EPIs
   const navigate = useNavigate();
 
-  // Configuration des éléments du menu
+  // Configuration du menu principal
   // Chaque élément a un texte, une icône et un chemin de destination
   const menuItems = [
     { text: 'Tableau de bord', icon: <DashboardIcon />, path: '/' },
@@ -38,10 +55,13 @@ const Layout = ({ children }: LayoutProps) => {
     { text: 'Contrôles', icon: <CheckCircleIcon />, path: '/controls' },
   ];
 
+  // ********** RENDU JSX **********
   return (
-    // Conteneur principal qui utilise Flexbox pour la mise en page
+    // Box principal avec flexbox pour le layout
+    // display: 'flex' permet d'avoir le menu à gauche et le contenu à droite
     <Box sx={{ display: 'flex' }}>
-      {/* Barre de navigation supérieure fixe */}
+      {/* AppBar : Barre de navigation supérieure fixe */}
+      {/* zIndex élevé pour rester au-dessus des autres éléments */}
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
           <Typography variant="h6" noWrap component="div">
@@ -50,22 +70,26 @@ const Layout = ({ children }: LayoutProps) => {
         </Toolbar>
       </AppBar>
 
-      {/* Menu latéral permanent (toujours visible) */}
+      {/* Drawer : Menu latéral permanent */}
+      {/* variant="permanent" signifie qu'il est toujours visible */}
       <Drawer
         variant="permanent"
         sx={{
           width: drawerWidth,
           flexShrink: 0,
-          '& .MuiDrawer-paper': {  // Style du papier du drawer
+          '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
           },
         }}
       >
-        <Toolbar /> {/* Espace pour compenser la hauteur de la barre supérieure */}
+        {/* Espace pour compenser la hauteur de l'AppBar */}
+        <Toolbar />
+        
         {/* Liste des éléments du menu */}
         <List>
-          {/* Parcourt et affiche chaque élément du menu */}
+          {/* Map sur menuItems pour générer les boutons du menu */}
+          {/* Chaque clic déclenche une navigation via navigate() */}
           {menuItems.map((item) => (
             <ListItemButton key={item.text} onClick={() => navigate(item.path)}>
               <ListItemIcon>{item.icon}</ListItemIcon>
@@ -76,34 +100,29 @@ const Layout = ({ children }: LayoutProps) => {
       </Drawer>
 
       {/* Zone principale de contenu */}
+      {/* flexGrow: 1 fait grandir cette zone pour occuper l'espace disponible */}
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Toolbar /> {/* Espace pour compenser la hauteur de la barre supérieure */}
-        {children} {/* Affiche le contenu spécifique de chaque page */}
+        <Toolbar /> {/* Espace pour l'AppBar */}
+        {children} {/* Affichage du contenu de la page active */}
       </Box>
     </Box>
   );
 };
 
-// Exporte le composant pour l'utiliser dans toute l'application
+// Export du composant pour l'utiliser dans App.tsx
 export default Layout;
 
-/*
-RÉSUMÉ DU FICHIER Layout.tsx :
-
-Ce composant est la structure de base de toute l'application GestEPI.
-Il crée une mise en page cohérente avec :
-- Une barre de navigation en haut
-- Un menu latéral permanent
-- Une zone principale où s'affiche le contenu des pages
-
-PLACE DANS L'ARCHITECTURE :
-- Situé dans components/common/ car c'est un composant utilisé par toutes les pages
-- Enveloppe toutes les autres pages de l'application
-- Gère la navigation principale entre les différentes sections
-
-POINTS CLÉS POUR L'ORAL :
-1. Structure commune à toutes les pages pour une expérience utilisateur cohérente
-2. Utilisation de Material-UI pour un design professionnel
-3. Navigation fluide entre les pages grâce à React Router
-4. Organisation claire du code avec TypeScript
-*/
+// 📝 RÉSUMÉ POUR L'ÉPREUVE E6
+// Ce fichier est crucial car il :
+// 1. Définit la structure visuelle commune à toute l'application
+// 2. Gère la navigation principale via React Router
+// 3. Utilise Material-UI pour un design professionnel
+// 4. Implémente un layout responsive avec flexbox
+// 5. Utilise TypeScript pour le typage des props
+//
+// Points techniques à souligner :
+// - Architecture React moderne (hooks, composants fonctionnels)
+// - Typage TypeScript
+// - Utilisation de Material-UI
+// - Navigation avec React Router
+// - Structure de code maintenable et réutilisable

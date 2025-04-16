@@ -1,39 +1,57 @@
-// Import de React, nécessaire pour créer des composants
+// ************************************************************************
+// 🎓 COMPOSANT REACT SIDEBAR - PROJET GESTEPI 
+// Pour l'épreuve E6 BTS SIO SLAM
+// ************************************************************************
+
+// 📚 IMPORTS NÉCESSAIRES
+// React pour créer notre composant
 import React from 'react';
 
-// Import des composants Material-UI qui servent à construire le menu latéral
+// Composants Material-UI pour l'interface graphique
+// Drawer : menu latéral coulissant
+// List : liste d'éléments verticale
+// ListItem : élément de liste individuel
+// ListItemButton : rend l'élément cliquable
+// ListItemIcon : zone pour l'icône
+// ListItemText : zone pour le texte
+// Toolbar : espace en haut du menu
+// Divider : ligne de séparation
 import { 
-  Drawer,           // Le conteneur du menu latéral qui "glisse" depuis le côté
-  List,             // Pour créer une liste verticale d'éléments
-  ListItem,         // Un élément de la liste
-  ListItemButton,   // Rend l'élément de liste cliquable
-  ListItemIcon,     // Pour ajouter une icône à gauche du texte
-  ListItemText,     // Le texte de l'élément de liste
-  Toolbar,          // Espace en haut pour aligner avec la barre de navigation
-  Divider           // Ligne de séparation entre les sections du menu
+  Drawer,
+  List,
+  ListItem, 
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Divider
 } from '@mui/material';
 
-// Import du composant Link de React Router qui permet la navigation entre les pages
+// Link de React Router pour la navigation
+// Pour l'E6 : Permet de naviguer sans recharger la page
+// Équivalent en PHP : header('Location: /page')
 import { Link } from 'react-router-dom';
 
-// Import des icônes Material-UI utilisées dans le menu
-import DashboardIcon from '@mui/icons-material/Dashboard';    // Icône pour le tableau de bord
-import InventoryIcon from '@mui/icons-material/Inventory';    // Icône pour la liste des EPIs
-import AssignmentIcon from '@mui/icons-material/Assignment';  // Icône pour les contrôles
-import WarningIcon from '@mui/icons-material/Warning';        // Icône pour les alertes
+// Icônes Material-UI pour le menu
+// Pour l'E6 : Améliore l'expérience utilisateur avec des repères visuels
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import WarningIcon from '@mui/icons-material/Warning';
 
-// Définition de la largeur fixe du menu latéral en pixels
+// Largeur fixe du menu en pixels
+// Pour l'E6 : Constante réutilisable pour maintenir la cohérence du design
 const drawerWidth = 240;
 
-// Composant Sidebar : Menu latéral de l'application
-// Il contient les liens de navigation principaux
+// ********** COMPOSANT REACT **********
+// Pour l'E6 : Composant fonctionnel qui crée le menu latéral
+// Pas de state ni de hooks car c'est un composant statique
 const Sidebar = () => {
+  // ********** RENDU DU COMPOSANT **********
   return (
-    // Drawer : Menu latéral permanent (toujours visible)
-    // Les styles sx permettent de :
-    // - Définir la largeur
-    // - Empêcher le menu de rétrécir
-    // - Cacher le menu sur mobile (xs) et l'afficher sur tablette/desktop (sm)
+    // Drawer : conteneur principal du menu latéral
+    // variant="permanent" : toujours visible (pas de menu hamburger)
+    // sx : styles personnalisés avec Material-UI
     <Drawer
       variant="permanent"
       sx={{
@@ -42,16 +60,18 @@ const Sidebar = () => {
         [`& .MuiDrawer-paper`]: { 
           width: drawerWidth, 
           boxSizing: 'border-box',
+          // Responsive : caché sur mobile (xs), visible sur desktop (sm)
           display: { xs: 'none', sm: 'block' } 
         },
       }}
     >
-      {/* Espace en haut pour aligner avec la barre de navigation */}
+      {/* Toolbar vide pour aligner avec la navbar */}
       <Toolbar />
 
       {/* Liste des éléments du menu */}
       <List>
-        {/* Élément "Tableau de bord" */}
+        {/* Tableau de bord - Page d'accueil */}
+        {/* Pour l'E6 : component={Link} transforme le bouton en lien */}
         <ListItem disablePadding>
           <ListItemButton component={Link} to="/">
             <ListItemIcon>
@@ -61,7 +81,9 @@ const Sidebar = () => {
           </ListItemButton>
         </ListItem>
         
-        {/* Élément "Liste des EPIs" */}
+        {/* Liste des EPIs */}
+        {/* Pour l'E6 : Route vers /epis qui affiche EPIList.tsx */}
+        {/* En SQL : SELECT * FROM epis */}
         <ListItem disablePadding>
           <ListItemButton component={Link} to="/epis">
             <ListItemIcon>
@@ -71,10 +93,12 @@ const Sidebar = () => {
           </ListItemButton>
         </ListItem>
         
-        {/* Ligne de séparation avec marges verticales */}
+        {/* Séparateur visuel */}
         <Divider sx={{ my: 1 }} />
         
-        {/* Élément "Contrôles" */}
+        {/* Contrôles */}
+        {/* Pour l'E6 : Route vers /controles qui affiche ControlList.tsx */}
+        {/* En SQL : SELECT * FROM controles */}
         <ListItem disablePadding>
           <ListItemButton component={Link} to="/controles">
             <ListItemIcon>
@@ -84,7 +108,9 @@ const Sidebar = () => {
           </ListItemButton>
         </ListItem>
         
-        {/* Élément "Alertes" */}
+        {/* Alertes */}
+        {/* Pour l'E6 : Route vers /alertes qui affiche AlertList.tsx */}
+        {/* En SQL : SELECT * FROM controles WHERE date_prochaine < NOW() */}
         <ListItem disablePadding>
           <ListItemButton component={Link} to="/alertes">
             <ListItemIcon>
@@ -98,5 +124,12 @@ const Sidebar = () => {
   );
 };
 
-// Export du composant pour l'utiliser dans le Layout principal
-export default Sidebar; 
+export default Sidebar;
+
+// 📝 RÉSUMÉ POUR L'ÉPREUVE E6
+// Ce fichier est important car il :
+// 1. Crée le menu de navigation principal de l'application
+// 2. Utilise React Router pour la navigation entre les pages
+// 3. Intègre Material-UI pour une interface professionnelle
+// 4. Est responsive (s'adapte aux différentes tailles d'écran)
+// 5. Structure clairement les différentes sections de l'application

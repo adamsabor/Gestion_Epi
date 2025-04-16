@@ -1,73 +1,65 @@
-/* ********** STYLES GLOBAUX DE L'APPLICATION ********** */
-/* Ce fichier contient les styles de base qui s'appliquent à toute l'application */
-/* C'est comme les "règles de base" pour l'apparence de notre site */
+/*
+🎨 Fichier : index.css
+🧩 Rôle : Définition des styles CSS globaux de base pour toute l'application
+🔄 Interagit avec : Composants React, Material-UI, index.html
+👶 Niveau débutant : Ce fichier est comme la "peinture de base" qu'on applique sur les murs avant de décorer !
+*/
 
-/* Styles pour le corps de la page (body) */
+
+/* ===== STYLES GLOBAUX ===== */
+/* Ces styles s'appliquent à TOUTE l'application, c'est la base visuelle */
+/* Imagine que c'est comme la première couche de peinture sur un mur neuf */
+
+/* ----- STYLES DU BODY ----- */
+/* Le body est comme "l'enveloppe" qui contient tout le contenu visible */
 body {
-  /* Supprime les marges par défaut du navigateur */
+  /* On enlève l'espace autour de la page (comme si on collait le papier peint aux murs) */
   margin: 0;
   
-  /* Définit la police de caractères par défaut */
-  /* Liste des polices dans l'ordre de préférence */
+  /* On définit les polices de caractères dans un ordre précis */
+  /* C'est comme avoir plusieurs options de stylos, si le premier n'est pas dispo, on prend le suivant */
   font-family: 
-    -apple-system,      /* Pour les appareils Apple */
-    BlinkMacSystemFont, /* Pour Chrome sur Mac */
-    'Segoe UI',         /* Pour Windows */
-    'Roboto',           /* Police par défaut de Material UI */
-    'Oxygen',
-    'Ubuntu',
-    'Cantarell',
+    -apple-system,      /* Police optimisée pour les appareils Apple */
+    BlinkMacSystemFont, /* Version spéciale pour Chrome sur Mac */
+    'Segoe UI',         /* Police moderne de Windows */
+    'Roboto',           /* Police officielle de Material UI - très lisible ! */
+    'Oxygen',           /* Alternatives modernes et élégantes... */
+    'Ubuntu',           /* ...qui fonctionnent bien sur différents systèmes... */
+    'Cantarell',        /* ...pour assurer une belle apparence partout */
     'Fira Sans',
     'Droid Sans',
     'Helvetica Neue',
-    sans-serif;         /* Police générique de secours */
+    sans-serif;         /* Police de secours si aucune autre n'est disponible */
   
-  /* Améliore le rendu des polices sur les écrans */
-  -webkit-font-smoothing: antialiased;  /* Pour Chrome/Safari */
-  -moz-osx-font-smoothing: grayscale;   /* Pour Firefox */
+  /* Ces propriétés rendent le texte plus net et agréable à lire */
+  /* C'est comme mettre des lunettes pour mieux voir ! */
+  -webkit-font-smoothing: antialiased;  /* Pour les navigateurs basés sur WebKit (Chrome, Safari) */
+  -moz-osx-font-smoothing: grayscale;   /* Pour Firefox sur Mac */
 }
 
-/* Styles pour les blocs de code */
+/* ----- STYLES DES BLOCS DE CODE ----- */
+/* Pour afficher du code source de façon claire et lisible */
 code {
-  /* Police monospace pour le code, plus lisible */
+  /* Polices spéciales pour le code, où chaque caractère a la même largeur */
+  /* C'est comme utiliser du papier quadrillé pour écrire des maths */
   font-family: 
-    source-code-pro,    /* Police spéciale pour le code */
-    Menlo,             /* Pour Mac */
-    Monaco,            /* Pour Mac */
-    Consolas,          /* Pour Windows */
-    'Courier New',     /* Police monospace classique */
-    monospace;         /* Police générique de secours */
+    source-code-pro,    /* Police idéale pour le code */
+    Menlo,             /* Alternatives professionnelles... */
+    Monaco,            /* ...qui marchent bien pour afficher du code... */
+    Consolas,          /* ...sur différents systèmes */
+    'Courier New',
+    monospace;         /* Type de police où chaque lettre a la même largeur */
 }
 
+/* ===== RÉSUMÉ DU FICHIER ===== */
 /*
-RÉSUMÉ DU FICHIER index.css :
-Ce fichier est le "FONDATION" des styles de notre application. 
-C'est comme les règles de base pour l'apparence de notre site !
+Ce fichier index.css est crucial car :
+1. Il pose les bases visuelles de l'application
+2. Il assure une expérience cohérente sur tous les navigateurs
+3. Il optimise la lisibilité du texte et du code
+4. Il sert de fondation pour les styles plus spécifiques de Material UI
 
-1. RÔLE PRINCIPAL :
-   - Définit les styles de base pour tout le site
-   - Configure l'apparence par défaut du texte
-   - Assure une cohérence visuelle de base
-
-2. ÉLÉMENTS CLÉS :
-   - Styles du body :
-     * Suppression des marges par défaut
-     * Configuration des polices
-     * Optimisation du rendu des textes
-   - Styles du code :
-     * Police spéciale pour les blocs de code
-     * Meilleure lisibilité du code
-
-3. IMPORTANCE :
-   - Ces styles s'appliquent à TOUTE l'application
-   - Ils définissent l'apparence de base
-   - Ils assurent une bonne lisibilité
-
-4. INTERACTION AVEC MATERIAL UI :
-   - Ces styles sont appliqués AVANT les styles de Material UI
-   - Ils servent de "base" sur laquelle Material UI construit
-   - Ils assurent une cohérence même si Material UI n'est pas chargé
-
-C'est comme les fondations d'une maison : même si on ne les voit pas,
-elles sont essentielles pour que tout tienne debout et soit stable !
+🔍 Note importante : Ces styles sont volontairement minimalistes car Material UI 
+   va ajouter ses propres styles par-dessus. C'est comme poser une base neutre 
+   avant de peindre les détails !
 */

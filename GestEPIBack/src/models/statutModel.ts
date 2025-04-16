@@ -1,45 +1,50 @@
-// ********** IMPORTS **********
-// On importe l'objet 'db' qui nous permet de nous connecter à la base de données MySQL
-// Il vient du fichier database.ts qui configure la connexion avec les bons paramètres
+// ************************************************************************
+// 🎓 MODÈLE DES STATUTS - PROJET GESTEPI 
+// Pour l'épreuve E6 BTS SIO SLAM
+// ************************************************************************
+
+// 📚 IMPORTS NÉCESSAIRES
+// On importe l'objet db qui contient notre connexion à MySQL
+// Il nous permet d'exécuter des requêtes SQL de façon sécurisée
 import { db } from '../config/database';
 
-// ********** DÉFINITION DU MODÈLE **********
-// Cette classe gère tout ce qui concerne les statuts des EPIs dans la base de données
-// Un statut peut être par exemple : "En service", "Hors service", "En contrôle"...
-// Elle fait partie de la couche "Model" qui s'occupe des données
+// 🎯 CLASSE MODÈLE
+// Cette classe suit le pattern MVC (Modèle-Vue-Contrôleur)
+// Elle gère toute la logique d'accès aux données des statuts d'EPI
 export class StatutModel {
-  // ********** MÉTHODE : RÉCUPÉRER TOUS LES STATUTS **********
-  // Cette méthode va chercher tous les statuts possibles dans la base
-  // - async/await : car l'accès à la base de données prend du temps
-  // - Promise<any[]> : on promet de renvoyer un tableau de statuts
+
+  // 📥 MÉTHODE : RÉCUPÉRER TOUS LES STATUTS
+  // async car les requêtes SQL sont asynchrones
+  // Promise<any[]> = on renvoie un tableau d'objets statuts
   async findAll(): Promise<any[]> {
     try {
-      // On fait une requête SQL simple pour sélectionner tous les statuts
-      // Le résultat est stocké dans 'rows' grâce à la déstructuration [rows]
+      // REQUÊTE SQL SIMPLE
+      // 1. SELECT * : sélectionne toutes les colonnes de Statut_EPI
+      // 2. Le [rows] utilise la déstructuration d'un tableau
       const [rows] = await db.query('SELECT * FROM Statut_EPI');
       
-      // On convertit et renvoie le résultat en tableau de statuts
+      // RETOUR DES DONNÉES
+      // as any[] = type casting TypeScript pour indiquer qu'on renvoie un tableau
       return rows as any[];
+
     } catch (error) {
-      // Si une erreur survient pendant la requête :
-      // 1. On l'affiche dans la console pour pouvoir débugger
+      // GESTION DES ERREURS
+      // On log l'erreur pour le debugging
+      // throw error la transmet au contrôleur qui gèrera la réponse HTTP
       console.error('Erreur lors de la récupération des statuts:', error);
-      // 2. On la renvoie pour que le contrôleur puisse la gérer
       throw error;
     }
   }
 }
 
-/*
-RÉSUMÉ DU FICHIER statutModel.ts :
-Ce fichier est un "Model" qui gère les statuts des EPIs dans la base de données.
-Son rôle est simple mais important :
-1. Il permet de récupérer la liste de tous les statuts possibles pour un EPI
-2. Ces statuts sont utilisés par le reste de l'application pour :
-   - Afficher l'état actuel d'un EPI
-   - Mettre à jour le statut d'un EPI lors d'un contrôle
-   - Filtrer les EPIs par statut dans l'interface
-
-C'est comme un "assistant" qui va chercher dans la base de données 
-toutes les valeurs possibles pour l'état d'un EPI !
-*/
+// 📝 RÉSUMÉ POUR L'ÉPREUVE E6
+// Ce modèle est responsable de :
+// 1. La récupération des statuts possibles pour les EPI
+// 2. Ces statuts servent à indiquer l'état d'un EPI (neuf, bon état, à contrôler, etc.)
+// 3. La gestion des erreurs de base de données
+//
+// Points techniques à souligner :
+// - Pattern MVC
+// - Programmation asynchrone avec async/await
+// - Requêtes SQL sécurisées
+// - Gestion d'erreurs try/catch

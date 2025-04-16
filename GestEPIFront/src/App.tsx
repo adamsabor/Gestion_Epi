@@ -1,62 +1,76 @@
-// ********** IMPORTS **********
-// React : La bibliothèque de base pour créer notre interface
-import React from 'react';
-// React Router : Permet de gérer la navigation entre les pages de notre application
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// Material UI : Bibliothèque de composants graphiques pour un design professionnel
-import { ThemeProvider } from '@mui/material/styles';
-// CssBaseline : Réinitialise les styles CSS par défaut pour une meilleure cohérence
-import CssBaseline from '@mui/material/CssBaseline';
-// Layout : Notre composant qui définit la structure générale de l'application
-import Layout from './components/layout/Layout';
-// Theme : Nos paramètres de style personnalisés (couleurs, polices...)
-import theme from './theme';
-// Composants de notre application :
-import EPIList from './components/epi/EPIList';         // Liste des EPIs
-import Dashboard from './components/dashboard/Dashboard'; // Tableau de bord
-import EPIForm from './components/epi/EPIForm';         // Formulaire EPI
-import EPIDetails from './components/epi/EPIDetails';
-import ControleForm from './components/controle/ControleForm'; // Formulaire de contrôle
-import AlertesList from './components/alerte/AlertesList';    // Liste des alertes
-import Login from './components/common/Login';
+// ************************************************************************
+// 🎓 COMPOSANT PRINCIPAL - PROJET GESTEPI 
+// Pour l'épreuve E6 BTS SIO SLAM
+// ************************************************************************
 
-import NotFound from './components/common/NotFound';     // Page 404
-// Gestion des dates en français
+// ===== IMPORTS NÉCESSAIRES =====
+// React : bibliothèque pour créer l'interface utilisateur
+// Pour l'E6 : Équivalent des templates Twig/Blade en PHP
+import React from 'react';
+
+// React Router : gestion des URLs et de la navigation
+// Pour l'E6 : Comme les routes dans Symfony/Laravel
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// Material UI : bibliothèque de composants graphiques
+// Pour l'E6 : Équivalent de Bootstrap mais pour React
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+// Composants personnalisés
+// Pour l'E6 : Comme des includes/requires en PHP
+import Layout from './components/layout/Layout';
+import theme from './theme';
+
+// Composants des fonctionnalités
+// Pour l'E6 : Chaque composant = une "vue" qui gère une page
+import EPIList from './components/epi/EPIList';         // SELECT * FROM epis
+import Dashboard from './components/dashboard/Dashboard'; // Vue tableau de bord
+import EPIForm from './components/epi/EPIForm';         // INSERT/UPDATE epis
+import EPIDetails from './components/epi/EPIDetails';   // SELECT * FROM epis WHERE id = ?
+import ControleForm from './components/controle/ControleForm'; // INSERT controles
+import AlertesList from './components/alerte/AlertesList';    // Vue des alertes
+import Login from './components/common/Login';          // Authentification
+import NotFound from './components/common/NotFound';    // Erreur 404
+
+// Configuration des dates en français
+// Pour l'E6 : Comme setlocale() en PHP
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { fr } from 'date-fns/locale';
 
-// ********** COMPOSANT PRINCIPAL DE L'APPLICATION **********
-// Ce composant App est la racine de notre application
-// Il définit la structure globale et les routes disponibles
+// ===== COMPOSANT APP =====
+// Pour l'E6 : Point d'entrée principal, comme index.php
+// Gère la structure globale et le routage
 function App() {
+    // Le hook return renvoie le JSX (comme echo en PHP)
     return (
-        // ThemeProvider : Applique notre thème personnalisé à toute l'application
+        // ThemeProvider : applique le thème global
+        // Pour l'E6 : Comme un fichier CSS global
         <ThemeProvider theme={theme}>
-            {/* LocalizationProvider : Configure les dates en français */}
+            {/* LocalizationProvider : configuration des dates */}
             <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={fr}>
-                {/* CssBaseline : Assure une base CSS cohérente */}
+                {/* CssBaseline : reset CSS */}
                 <CssBaseline />
-                {/* Router : Gère la navigation dans l'application */}
+                {/* Router : système de navigation */}
                 <Router>
-                    {/* Routes : Définit toutes les pages accessibles */}
+                    {/* Routes : définition des URLs */}
+                    {/* Pour l'E6 : Comme les routes dans routes.php */}
                     <Routes>
-                       <Route path="/login" element={<Login />} />
+                        {/* Login : accessible sans Layout */}
+                        <Route path="/login" element={<Login />} />
 
-                        {/* Route principale avec notre Layout */}
+                        {/* Routes avec Layout (header/footer) */}
                         <Route path="/" element={<Layout />}>
-                            {/* Page d'accueil : le tableau de bord */}
+                            {/* Chaque Route = une URL + un composant */}
+                            {/* Pour l'E6 : URL -> Controller -> Vue */}
                             <Route index element={<Dashboard />} />
-                            {/* Routes pour la gestion des EPIs */}
                             <Route path="epis" element={<EPIList />} />
                             <Route path="epis/new" element={<EPIForm />} />
                             <Route path="/epis/:id" element={<EPIDetails />} />
                             <Route path="epis/edit/:id" element={<EPIForm />} />
-                            {/* Route pour créer un nouveau contrôle */}
                             <Route path="controles/new" element={<ControleForm />} />
-                            {/* Route pour voir les alertes */}
                             <Route path="alertes" element={<AlertesList />} />
-                            {/* Route 404 pour les pages non trouvées */}
                             <Route path="*" element={<NotFound />} />
                         </Route>
                     </Routes>
@@ -66,31 +80,20 @@ function App() {
     );
 }
 
-// On exporte le composant App pour l'utiliser dans index.tsx
+// Export du composant pour utilisation
 export default App;
 
-/*
-RÉSUMÉ DU FICHIER App.tsx :
-Ce fichier est le CŒUR de notre application React. Il joue plusieurs rôles essentiels :
-
-1. STRUCTURE : 
-   - Définit l'architecture générale de l'application
-   - Met en place le thème et les styles de base
-   - Configure la gestion des dates en français
-
-2. NAVIGATION :
-   - Définit toutes les routes (URLs) de l'application
-   - Permet d'accéder aux différentes fonctionnalités :
-     * Dashboard (tableau de bord)
-     * Gestion des EPIs (liste, création, modification, détails)
-     * Gestion des contrôles
-     * Système d'alertes
-
-3. ORGANISATION :
-   - Utilise un Layout commun pour maintenir une structure cohérente
-   - Gère les cas d'erreur (page 404)
-   - Intègre les bibliothèques essentielles (Material UI, React Router)
-
-C'est comme le "plan" de notre application qui organise comment 
-les utilisateurs peuvent naviguer et accéder aux différentes fonctionnalités !
-*/
+// 📝 RÉSUMÉ POUR L'ÉPREUVE E6
+// Ce fichier est crucial car il :
+// 1. Est le point d'entrée de l'application (comme index.php)
+// 2. Configure le routage (URLs -> composants)
+// 3. Structure l'interface utilisateur
+// 4. Gère la navigation entre les pages
+// 5. Intègre les bibliothèques principales
+// 
+// Pour expliquer à l'examinateur :
+// - Les routes correspondent aux URLs de l'application
+// - Chaque composant est comme une page PHP
+// - Le routage remplace les contrôleurs PHP
+// - Les hooks React remplacent les méthodes PHP
+// - L'interface est construite en JSX (comme du HTML)

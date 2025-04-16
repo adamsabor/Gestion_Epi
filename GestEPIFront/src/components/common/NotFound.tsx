@@ -1,48 +1,65 @@
-// ********** IMPORTS **********
-// Import de React, nécessaire pour créer des composants
+// ************************************************************************
+// 🎓 COMPOSANT REACT NOTFOUND - PROJET GESTEPI 
+// Pour l'épreuve E6 BTS SIO SLAM
+// ************************************************************************
+
+// 📚 IMPORTS NÉCESSAIRES
+// React est la bibliothèque de base pour créer des composants
+// C'est la première chose à importer dans un fichier React
 import React from 'react';
-// Import des composants Material-UI pour créer l'interface
-// Box : conteneur flexible pour la mise en page
-// Typography : pour gérer les textes et titres
-// Button : pour créer des boutons stylisés
+
+// Material-UI fournit des composants graphiques prêts à l'emploi
+// Box : Conteneur flexible pour organiser les éléments (comme une div améliorée)
+// Typography : Pour gérer les textes avec des styles cohérents
+// Button : Pour créer des boutons interactifs stylés
 import { Box, Typography, Button } from '@mui/material';
-// Import du composant Link de React Router pour la navigation entre pages
+
+// Link de React Router permet de créer des liens entre les pages
+// Au lieu de recharger la page, il met à jour l'URL et le contenu dynamiquement
 import { Link } from 'react-router-dom';
 
-// Composant NotFound : Page d'erreur 404 affichée quand une URL n'existe pas
-// C'est une page simple et claire qui aide l'utilisateur à revenir à l'accueil
+// ********** COMPOSANT REACT **********
+// Pour l'E6 : Un composant fonctionnel qui affiche une page d'erreur 404
+// Il s'affiche quand l'utilisateur essaie d'accéder à une URL qui n'existe pas
 const NotFound = () => {
+  // ********** RENDU JSX **********
+  // Pour l'E6 : Le JSX est comme du HTML amélioré qui peut inclure du JavaScript
   return (
-    // Box : Conteneur principal qui centre tout son contenu verticalement et horizontalement
+    // Box est un conteneur qui utilise flexbox pour centrer son contenu
+    // Pour l'E6 : Les props de style sont passées via l'objet sx
     <Box
-      display="flex"              // Utilise Flexbox pour la mise en page
+      display="flex"              // Active flexbox pour le positionnement
       flexDirection="column"      // Empile les éléments verticalement
-      alignItems="center"         // Centre les éléments horizontalement
-      justifyContent="center"     // Centre les éléments verticalement
-      minHeight="70vh"           // Prend au moins 70% de la hauteur de l'écran
+      alignItems="center"         // Centre horizontalement
+      justifyContent="center"     // Centre verticalement
+      minHeight="70vh"           // Hauteur minimum de 70% de l'écran
     >
-      {/* Affiche le code d'erreur 404 en grand */}
+      {/* Typography avec variant="h1" crée un titre principal */}
+      {/* color="primary" utilise la couleur principale du thème */}
       <Typography variant="h1" color="primary" gutterBottom>
         404
       </Typography>
 
-      {/* Titre explicatif de l'erreur */}
+      {/* variant="h4" crée un sous-titre plus petit */}
+      {/* gutterBottom ajoute une marge en bas */}
       <Typography variant="h4" gutterBottom>
         Page non trouvée
       </Typography>
 
-      {/* Message d'explication pour l'utilisateur */}
+      {/* variant="body1" pour le texte normal */}
+      {/* color="textSecondary" utilise une couleur de texte plus claire */}
       <Typography variant="body1" color="textSecondary" paragraph>
         La page que vous recherchez n'existe pas ou a été déplacée.
       </Typography>
 
-      {/* Bouton qui permet de revenir à la page d'accueil */}
+      {/* Button transformé en lien avec component={Link} */}
+      {/* Pour l'E6 : to="/" définit la destination (page d'accueil) */}
       <Button
-        component={Link}          // Transforme le bouton en lien de navigation
-        to="/"                    // Redirige vers la page d'accueil
+        component={Link}          // Transforme le bouton en lien
+        to="/"                    // URL de destination
         variant="contained"       // Style "plein" du bouton
-        color="primary"          // Utilise la couleur principale du thème
-        sx={{ mt: 2 }}          // Ajoute une marge en haut (margin-top)
+        color="primary"          // Couleur principale du thème
+        sx={{ mt: 2 }}          // Marge supérieure de 16px (2 * 8px)
       >
         Retour à l'accueil
       </Button>
@@ -50,23 +67,12 @@ const NotFound = () => {
   );
 };
 
-// Exporte le composant pour pouvoir l'utiliser dans d'autres fichiers
+// Export du composant pour l'utiliser ailleurs
 export default NotFound;
 
-/*
-RÉSUMÉ DU FICHIER NotFound.tsx :
-
-Ce composant est la page d'erreur 404 de l'application GestEPI.
-Il s'affiche automatiquement quand l'utilisateur essaie d'accéder à une URL qui n'existe pas.
-
-PLACE DANS L'ARCHITECTURE :
-- Situé dans components/common/ car c'est une page d'erreur générique
-- Utilisé par le système de routage (React Router) quand aucune route ne correspond
-- Dépend de Material-UI pour un design cohérent avec le reste de l'application
-
-POINTS CLÉS POUR L'ORAL :
-1. Gestion des erreurs utilisateur de manière élégante
-2. Interface claire qui guide l'utilisateur
-3. Utilisation de Material-UI pour un design professionnel
-4. Intégration avec React Router pour la navigation
-*/
+// 📝 RÉSUMÉ POUR L'ÉPREUVE E6
+// Ce fichier est important car il :
+// 1. Gère les erreurs 404 de manière professionnelle
+// 2. Utilise Material-UI pour un design cohérent
+// 3. Intègre React Router pour la navigation
+// 4. Montre la gestion de l'expérience utilisateur

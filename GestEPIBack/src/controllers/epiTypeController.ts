@@ -1,47 +1,53 @@
-// ********** IMPORTS **********
-// On importe les types Request et Response depuis Express
-// Request : contient toutes les infos de la requête reçue (URL, paramètres, etc.)
-// Response : permet d'envoyer une réponse au client (succès ou erreur)
+// ************************************************************************
+// 🎓 CONTRÔLEUR DES TYPES D'EPI - PROJET GESTEPI 
+// Pour l'épreuve E6 BTS SIO SLAM
+// ************************************************************************
+
+// 📚 IMPORTS NÉCESSAIRES
+// Request et Response sont des types TypeScript fournis par Express
+// Ils permettent de typer les paramètres des fonctions du contrôleur
 import { Request, Response } from 'express';
 
-// On importe notre modèle TypeEpiModel qui gère l'accès à la base de données
-// C'est lui qui contient les requêtes SQL pour les types d'EPI (casque, harnais, etc.)
+// On importe le modèle qui gère les requêtes SQL pour les types d'EPI
+// Le modèle fait le lien entre le contrôleur et la base de données
 import { TypeEpiModel } from '../models/typeEpiModel';
 
-// ********** DÉFINITION DU CONTRÔLEUR **********
-// Cette classe fait le lien entre :
-// 1. Les routes (URLs comme /api/epi-types)
-// 2. Le modèle (qui accède à la base de données)
+// 🎯 CLASSE CONTRÔLEUR
+// Cette classe suit le pattern MVC (Modèle-Vue-Contrôleur)
+// Elle reçoit les requêtes HTTP et coordonne les actions avec le modèle
 export class EpiTypeController {
-  // On déclare une propriété privée pour stocker notre modèle
-  // Private = accessible uniquement dans cette classe
+  // Propriété privée qui stocke une instance du modèle
+  // private = accessible uniquement dans cette classe
   private typeEpiModel: TypeEpiModel;
 
-  // Le constructeur est appelé quand on crée une nouvelle instance du contrôleur
-  // Il initialise le modèle qu'on utilisera pour accéder aux données
+  // Constructeur = fonction appelée à la création de la classe
+  // Il initialise le modèle pour pouvoir l'utiliser dans les méthodes
   constructor() {
     this.typeEpiModel = new TypeEpiModel();
   }
 
-  // ********** MÉTHODES DU CONTRÔLEUR **********
-  // Cette méthode récupère TOUS les types d'EPI existants (casque, harnais, etc.)
-  // async/await car on fait des opérations qui prennent du temps (accès base de données)
+  // 📥 MÉTHODE PRINCIPALE : RÉCUPÉRATION DES TYPES D'EPI
+  // async/await = gestion asynchrone pour les requêtes SQL
+  // Promise<void> = la fonction ne retourne rien mais est asynchrone
   getAll = async (req: Request, res: Response): Promise<void> => {
     try {
-      // On demande au modèle de nous donner tous les types d'EPI
+      // On appelle la méthode du modèle qui exécute : SELECT * FROM types_epi
       const types = await this.typeEpiModel.findAll();
       
-      // Tout s'est bien passé : on renvoie les types avec un code 200 (succès)
+      // Réponse HTTP 200 (succès) avec les données au format JSON
+      // Le front-end recevra un objet avec message + données
       res.status(200).json({
         message: 'Types d\'EPI récupérés avec succès',
         data: types
       });
+
     } catch (error) {
-      // En cas d'erreur :
-      // 1. On log l'erreur dans la console du serveur pour le debugging
+      // En cas d'erreur (ex: problème BDD)
+      // On log l'erreur côté serveur pour le debug
       console.error('Erreur lors de la récupération des types d\'EPI:', error);
       
-      // 2. On renvoie un code 500 (erreur serveur) avec un message d'erreur
+      // On renvoie une erreur 500 (erreur serveur) au client
+      // avec un message explicatif
       res.status(500).json({
         message: 'Erreur serveur lors de la récupération des types d\'EPI',
         error: error instanceof Error ? error.message : 'Erreur inconnue'
@@ -50,22 +56,16 @@ export class EpiTypeController {
   };
 }
 
-// On crée une instance du contrôleur qu'on exporte
-// Cette instance sera utilisée par les routes dans routes/typeEpiRoutes.ts
+// 📤 EXPORT
+// On crée et exporte directement une instance du contrôleur
+// Cette instance sera importée et utilisée par les routes
 export const epiTypeController = new EpiTypeController();
 
-/*
-RÉSUMÉ DU FICHIER epiTypeController.ts :
-Ce fichier fait partie de la couche "Controller" de l'architecture MVC.
-Son rôle est de :
-1. Recevoir les requêtes HTTP venant des routes
-2. Utiliser le modèle (TypeEpiModel) pour accéder aux données
-3. Renvoyer une réponse appropriée au front-end
-
-Pour l'instant, il ne gère qu'une seule fonctionnalité :
-- Récupérer la liste de tous les types d'EPI possibles
-  (comme casque, harnais, gants, etc.)
-
-C'est comme un chef d'orchestre qui coordonne les demandes du front-end 
-avec les opérations sur la base de données !
-*/
+// 📝 RÉSUMÉ POUR L'ÉPREUVE E6
+// Ce contrôleur est responsable de la gestion des types d'EPI dans l'application.
+// Points techniques à souligner :
+// 1. Architecture MVC avec séparation des responsabilités
+// 2. Utilisation de TypeScript pour la sécurité du typage
+// 3. Gestion des erreurs avec try/catch
+// 4. Programmation asynchrone avec async/await
+// 5. Communication avec la base de données via le modèle

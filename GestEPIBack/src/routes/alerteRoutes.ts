@@ -1,33 +1,42 @@
-// ********** IMPORTS **********
+// ************************************************************************
+// 🎓 ROUTES DES ALERTES - PROJET GESTEPI 
+// Pour l'épreuve E6 BTS SIO SLAM
+// ************************************************************************
+
+// 📚 IMPORTS NÉCESSAIRES
 // Express est le framework Node.js qu'on utilise pour créer notre API
-// Il nous fournit les outils pour gérer les routes, requêtes, etc.
+// Il nous permet de définir facilement nos routes et de gérer les requêtes HTTP
 import express from 'express';
 
-// On importe le contrôleur des alertes depuis son fichier
-// Le contrôleur contient la logique métier (que faire quand on appelle une route)
+// On importe notre contrôleur qui contient toute la logique métier
+// C'est lui qui va traiter les requêtes et renvoyer les réponses
 import { alerteController } from '../controllers/alerteController';
 
-// On crée un nouveau routeur Express
-// Le routeur permet de regrouper toutes les routes liées aux alertes
+// 🛠️ CRÉATION DU ROUTER
+// Le Router d'Express permet de regrouper les routes par fonctionnalité
+// Ici on regroupe toutes les routes liées aux alertes
 const router = express.Router();
 
-// ********** DÉFINITION DES ROUTES **********
-// Cette route répond aux requêtes GET sur l'URL /api/alertes
-// Quand le front fait une requête à cette URL, la fonction getAlertes du contrôleur est appelée
-// Elle va récupérer toutes les alertes dans la base de données
+// 🔄 DÉFINITION DES ROUTES
+// Route GET pour récupérer toutes les alertes
+// - Méthode HTTP : GET car on veut lire des données
+// - URL : '/' qui devient '/api/alertes' avec le préfixe global
+// - Fonction : alerteController.getAlertes qui sera exécutée
 router.get('/', alerteController.getAlertes);
 
-// On exporte le routeur pour pouvoir l'utiliser dans app.ts
-// Le 'as alerteRoutes' permet de le renommer pour plus de clarté
-export { router as alerteRoutes }; 
+// 📤 EXPORT DU ROUTER
+// On exporte notre router pour pouvoir l'utiliser dans app.ts
+// Le 'as alerteRoutes' permet de donner un nom explicite à l'export
+export { router as alerteRoutes };
 
-/*
-RÉSUMÉ DU FICHIER alerteRoutes.ts :
-Ce fichier fait partie de la couche "Routes" de notre architecture MVC (Model-View-Controller).
-Son rôle est de :
-1. Définir les URLs (endpoints) disponibles pour gérer les alertes
-2. Faire le lien entre ces URLs et les fonctions du contrôleur qui traitent les requêtes
-
-C'est comme un standard téléphonique qui dirige les appels (requêtes) 
-vers le bon interlocuteur (contrôleur) !
-*/
+// 📝 RÉSUMÉ POUR L'ÉPREUVE E6
+// Ce fichier de routes est responsable de :
+// 1. Définir les endpoints API pour la gestion des alertes
+// 2. Faire le lien entre les URLs et les fonctions du contrôleur
+// 3. Structurer l'API de façon professionnelle avec Express Router
+//
+// Points techniques à souligner :
+// - Architecture REST API
+// - Pattern MVC (ce fichier est la partie "Route")
+// - Utilisation d'Express.js
+// - Organisation modulaire du code

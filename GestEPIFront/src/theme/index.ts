@@ -1,27 +1,39 @@
-// ********** IMPORTS **********
-// On importe createTheme depuis Material-UI (MUI)
-// Cette fonction permet de créer un thème personnalisé pour notre application
+// 📄 Fichier : index.ts (dans le dossier theme)
+// 📌 Ce fichier fait partie du projet GestEPI (application de gestion des EPI pour cordistes)
+// 🧩 Rôle : Configuration du thème visuel global de l'application avec Material-UI
+// 🔄 Interagit avec : Composants React, Material-UI, App.tsx
+// 👶 Niveau débutant : Ce fichier est comme un "livre de style" qui définit l'apparence de toute l'application !
+
+// ===== IMPORTS =====
+// Material-UI (MUI) est une bibliothèque de composants React prêts à l'emploi
+// createTheme est l'outil qui nous permet de personnaliser l'apparence de ces composants
+// C'est comme avoir une palette de peinture pour customiser notre maison !
 import { createTheme } from '@mui/material/styles';
 
-// ********** CRÉATION DU THÈME **********
-// On crée un thème personnalisé qui sera utilisé dans toute l'application
-// Ce thème définit les couleurs principales qui donnent une identité visuelle cohérente
+// ===== CRÉATION DU THÈME =====
+// On utilise createTheme pour définir notre "livre de style" personnalisé
+// C'est comme créer un guide de marque qui assure que toute l'application 
+// aura une apparence cohérente et professionnelle
 const theme = createTheme({
-  // La palette contient toutes les couleurs du thème
+  // La "palette" est l'ensemble des couleurs utilisées dans l'application
+  // C'est comme définir les couleurs officielles d'une marque
   palette: {
-    // Couleur primaire : utilisée pour les éléments principaux 
-    // (boutons importants, en-têtes...)
+    // La couleur "primary" est la plus importante, elle définit l'identité visuelle
+    // Elle sera utilisée pour les éléments principaux comme les boutons d'action
+    // #1976d2 est un bleu professionnel qui inspire confiance
     primary: {
-      main: '#1976d2', // Un bleu Material Design standard
+      main: '#1976d2', // Cette teinte de bleu est la couleur officielle de Material Design
     },
-    // Couleur secondaire : utilisée pour les éléments d'accent
-    // (boutons secondaires, badges...)
+    // La couleur "secondary" est utilisée pour créer des contrastes et mettre en valeur
+    // certains éléments comme les notifications ou les badges
+    // #dc004e est un rose/rouge qui attire l'attention sans être agressif
     secondary: {
-      main: '#dc004e', // Un rose/rouge pour le contraste
+      main: '#dc004e', // Cette couleur crée un beau contraste avec le bleu primary
     },
   },
 });
 
-// On exporte le thème pour qu'il puisse être utilisé dans toute l'application
-// Il sera importé dans le composant racine (App.tsx) et appliqué via ThemeProvider
-export default theme; 
+// On exporte notre thème pour pouvoir l'utiliser partout dans l'application
+// Il sera importé dans App.tsx et appliqué via un ThemeProvider
+// C'est comme diffuser notre "livre de style" à tous les composants
+export default theme;

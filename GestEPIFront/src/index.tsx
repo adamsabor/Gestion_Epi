@@ -1,47 +1,61 @@
-// ********** IMPORTS **********
-// React : La bibliothèque de base pour créer notre interface
+// 📄 Fichier : index.tsx
+// 📌 Ce fichier fait partie du projet GestEPI (application de gestion des EPI pour cordistes)
+// 🧩 Rôle : Point d'entrée principal de l'application React, initialise et monte l'application dans le DOM
+// 🔄 Interagit avec : index.html, App.tsx, ReactDOM
+// 👶 Niveau débutant : Ce fichier est comme le "démarreur" qui lance toute l'application !
+
+// ===== IMPORTS ESSENTIELS =====
+// React est notre bibliothèque principale pour créer l'interface utilisateur
+// C'est comme avoir une boîte à outils pour construire des pages web interactives
 import React from 'react';
-// ReactDOM : Permet de rendre notre application React dans le navigateur
+
+// ReactDOM est l'outil qui permet d'afficher du React dans le navigateur
+// C'est comme un interprète qui traduit notre code React en pages web
 import ReactDOM from 'react-dom/client';
-// App : Notre composant principal qui contient toute l'application
+
+// App est notre composant racine qui contient toute l'application
+// C'est comme le plan général de notre maison, tous les autres composants sont à l'intérieur
 import App from './App';
 
-// ********** POINT D'ENTRÉE DE L'APPLICATION **********
-// On crée la racine de notre application React
-// C'est comme le "point de départ" où tout commence
+// ===== CRÉATION DU POINT DE MONTAGE =====
+// On crée un point d'ancrage pour notre application React
+// C'est comme choisir l'emplacement où on va construire notre maison
 const root = ReactDOM.createRoot(
-  // On cherche l'élément HTML avec l'id 'root' dans notre fichier index.html
+  // On cherche dans le HTML l'élément avec l'id 'root'
+  // Le "as HTMLElement" dit à TypeScript : "fais-moi confiance, cet élément existe"
   document.getElementById('root') as HTMLElement
 );
 
-// On rend notre application dans le navigateur
+// ===== RENDU DE L'APPLICATION =====
+// On "monte" notre application dans le DOM (la page web)
+// C'est comme construire notre maison à l'emplacement choisi
 root.render(
-  // StrictMode : Un outil de développement qui aide à détecter les problèmes potentiels
+  // StrictMode est un outil de développement qui nous aide à trouver des bugs
+  // C'est comme avoir un inspecteur qui vérifie la qualité de notre construction
   <React.StrictMode>
-    {/* On commence par afficher notre composant App */}
+    {/* App est notre composant principal, tout part de lui */}
+    {/* C'est comme poser la première pierre de notre maison */}
     <App />
   </React.StrictMode>
 );
 
 /*
-RÉSUMÉ DU FICHIER index.tsx :
-Ce fichier est le POINT DE DÉPART de notre application React. C'est comme le "starter" qui lance tout !
+===== RÉSUMÉ DU FICHIER index.tsx =====
+🎯 Ce fichier est CRUCIAL car :
+1. C'est le premier fichier exécuté au démarrage
+2. Il connecte React au HTML de base (index.html)
+3. Il initialise l'application avec les bonnes pratiques (StrictMode)
 
-1. RÔLE PRINCIPAL :
-   - C'est le premier fichier qui s'exécute quand l'application démarre
-   - Il "monte" (render) notre application React dans le navigateur
-   - Il attache notre application à l'élément HTML 'root' dans index.html
+🔍 Points techniques importants :
+- Utilise la nouvelle API "createRoot" de React 18
+- Active le StrictMode pour un développement plus sûr
+- Utilise TypeScript pour la sécurité du typage
 
-2. FONCTIONNEMENT :
-   - Importe les bibliothèques nécessaires
-   - Crée une "racine" React
-   - Active le mode strict pour la détection des erreurs
-   - Lance notre composant App qui contient toute l'application
+⚠️ Points d'attention :
+- L'élément 'root' doit exister dans index.html
+- StrictMode peut causer des rendus doubles en développement (c'est normal !)
+- Ce fichier ne doit pas être trop modifié une fois configuré
 
-3. IMPORTANCE :
-   - C'est le "pont" entre le HTML et notre application React
-   - Sans ce fichier, notre application ne pourrait pas s'afficher dans le navigateur
-   - C'est comme le "bouton d'alimentation" de notre application !
-
-C'est un fichier simple mais essentiel, comme la clé de contact d'une voiture !
+🌟 C'est comme le "bouton power" de l'application : 
+simple mais essentiel !
 */

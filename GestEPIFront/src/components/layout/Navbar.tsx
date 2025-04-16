@@ -1,39 +1,52 @@
-// ********** IMPORTS **********
-// Import de React, nécessaire pour créer des composants
+// ************************************************************************
+// 🎓 COMPOSANT REACT NAVBAR - PROJET GESTEPI 
+// Pour l'épreuve E6 BTS SIO SLAM
+// ************************************************************************
+
+// 📚 IMPORTS NÉCESSAIRES
+// React pour créer notre composant
 import React from 'react';
 
-// Import des composants Material-UI pour créer la barre de navigation
-// - AppBar : barre de navigation en haut de l'écran
-// - Toolbar : conteneur horizontal pour organiser les éléments
-// - Typography : composant pour gérer les textes de façon cohérente
-// - IconButton : bouton contenant une icône
+// Composants Material-UI pour l'interface graphique
+// AppBar : barre de navigation supérieure
+// Toolbar : conteneur horizontal pour organiser les éléments
+// Typography : texte stylé
+// IconButton : bouton avec icône
 import { AppBar, Toolbar, Typography, IconButton } from '@mui/material';
 
-// Import de l'icône de menu "hamburger" (les 3 barres horizontales)
+// Icône de menu "hamburger" de Material-UI
 import MenuIcon from '@mui/icons-material/Menu';
 
-// ********** COMPOSANT NAVBAR **********
-// Ce composant représente la barre de navigation principale de l'application
-// Il est affiché en haut de toutes les pages
+// ********** COMPOSANT REACT **********
+// Pour l'E6 : Composant qui crée la barre de navigation supérieure
+// C'est un composant fonctionnel (pas de state) qui retourne du JSX
 const Navbar = () => {
+  // Pour l'E6 : Le composant retourne la structure JSX de la navbar
   return (
-    // AppBar avec position fixe (reste visible même quand on scrolle)
-    // zIndex élevé pour s'assurer qu'elle reste au-dessus des autres éléments
+    // AppBar avec position fixe pour rester visible lors du défilement
+    // zIndex élevé pour être au-dessus des autres éléments
     <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-      {/* Toolbar contient tous les éléments de la barre de navigation */}
+      {/* Toolbar organise horizontalement les éléments */}
       <Toolbar>
-        {/* Bouton du menu hamburger qui n'apparaît que sur mobile (display: none sur desktop) */}
+        {/* IconButton pour le menu mobile 
+            Pour l'E6 : Bouton qui s'affiche uniquement sur mobile
+            color="inherit" : hérite la couleur du parent
+            edge="start" : aligné à gauche
+            sx={{ ... }} : styles personnalisés avec Material-UI */}
         <IconButton
-          color="inherit" // Hérite la couleur du thème
-          aria-label="open drawer" // Label pour l'accessibilité
-          edge="start" // Aligné au début de la barre
-          sx={{ mr: 2, display: { sm: 'none' } }} // Marge droite de 2, caché sur desktop
+          color="inherit"
+          aria-label="open drawer"
+          edge="start"
+          sx={{ mr: 2, display: { sm: 'none' } }}
         >
-          <MenuIcon /> {/* Icône du menu hamburger */}
+          {/* Icône du menu hamburger */}
+          <MenuIcon />
         </IconButton>
 
-        {/* Titre de l'application */}
-        {/* noWrap empêche le texte de passer à la ligne */}
+        {/* Typography pour le titre de l'application
+            Pour l'E6 : Utilise les styles prédéfinis de Material-UI
+            variant="h6" : taille de titre niveau 6
+            noWrap : pas de retour à la ligne */}
         <Typography variant="h6" noWrap component="div">
           GestEPI - Gestion des Équipements de Protection Individuelle
         </Typography>
@@ -42,5 +55,13 @@ const Navbar = () => {
   );
 };
 
-// Export du composant pour pouvoir l'utiliser dans d'autres fichiers
-export default Navbar; 
+// Export du composant pour utilisation dans d'autres fichiers
+export default Navbar;
+
+// 📝 RÉSUMÉ POUR L'ÉPREUVE E6
+// Ce fichier est important car il :
+// 1. Crée la barre de navigation principale de l'application
+// 2. Utilise Material-UI pour un design professionnel
+// 3. Est responsive (s'adapte au mobile avec le menu hamburger)
+// 4. Suit les bonnes pratiques React (composant fonctionnel)
+// 5. Intègre l'accessibilité (aria-label)
